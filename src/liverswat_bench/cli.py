@@ -487,11 +487,21 @@ def pilot(
     summarise_only: Annotated[
         bool, typer.Option(help="Rebuild the pilot summary from existing run outputs only.")
     ] = False,
+    judge_only: Annotated[
+        bool,
+        typer.Option(
+            help="Do not run model inference or scoring. Stop if model responses are missing."
+        ),
+    ] = False,
+    dry_run: Annotated[
+        bool, typer.Option(help="List the pending steps. Do not run or write anything.")
+    ] = False,
 ) -> None:
     """Run a pilot: models x evidence conditions, then score, judge, report and summarise.
 
-    Steps with existing outputs are skipped, so an interrupted pilot can resume. Real
-    model backends run real inference. Check the configuration before you run it.
+    Steps with existing outputs are skipped, so an interrupted pilot can resume. An
+    interrupted judge step resumes from its checkpoint. Real model backends run real
+    inference. Check the configuration before you run it.
     """
     from liverswat_bench.experiments.pilot import (
         combine_settings,
@@ -524,7 +534,19 @@ def pilot(
             (cfg.output_dir / "pilot_summary.md").write_text(render_pilot_markdown(summary))
             typer.echo(f"Summary: {cfg.output_dir / 'pilot_summary.md'}")
             return
-        run_pilot(cfg, source_files=source_files, passage_files=passage_files, log=typer.echo)
+        result = run_pilot(
+            cfg,
+            source_files=source_files,
+            passage_files=passage_files,
+            log=typer.echo,
+            judge_only=judge_only,
+            dry_run=dry_run,
+        )
+        if dry_run:
+            assert isinstance(result, list)
+            typer.echo(f"Pending steps: {len(result)}")
+            for step in result:
+                typer.echo(f"  {step}")
     except (ConfigError, AdapterError, RuntimeError, OSError) as exc:
         typer.echo(f"error: {exc}", err=True)
         raise typer.Exit(EXIT_INVALID) from exc

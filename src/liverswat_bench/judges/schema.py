@@ -205,6 +205,7 @@ class JudgeRunManifest(_Strict):
     started_at: datetime
     completed_at: datetime
     n_judgements: int
+    n_resumed_from_checkpoint: int = 0
     n_by_status: dict[str, int]
     responses_sha256: str
     dataset_sha256: str

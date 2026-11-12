@@ -2,12 +2,19 @@
 
 Output: ``<run_dir>/judgements/<judge_id>.jsonl`` (one JudgeRecord per
 response x prompt version x repeat) and ``<judge_id>.manifest.json``.
+
+Checkpoint: while a run is in progress, each judge result is appended to
+``<judge_id>.partial.jsonl``. The file ``<judge_id>.partial.meta.json`` records the
+inputs. If the process stops, the next run with the same inputs reuses the stored judge
+results and judges only the remaining responses. The checkpoint files are removed only
+after the final output and manifest are written.
 """
 
 from __future__ import annotations
 
 import hashlib
 import json
+import os
 import time
 from collections import Counter
 from collections.abc import Callable, Sequence
@@ -51,6 +58,52 @@ class JudgeRunError(RuntimeError):
 class JudgeRunResult:
     path: Path
     manifest: JudgeRunManifest
+    n_resumed: int = 0
+
+
+def _write_atomic(path: Path, text: str) -> None:
+    """Write a file so that a reader never sees a partly written file."""
+    tmp = path.with_name(path.name + ".tmp")
+    tmp.write_text(text, encoding="utf-8")
+    os.replace(tmp, path)
+
+
+def checkpoint_paths(out_dir: Path, judge_id: str) -> tuple[Path, Path]:
+    """Return the checkpoint data file and its metadata file for one judge model."""
+    return out_dir / f"{judge_id}.partial.jsonl", out_dir / f"{judge_id}.partial.meta.json"
+
+
+def _judgement_key(record: JudgeRecord) -> tuple[str, int, str, int]:
+    return (record.question_id, record.trial, record.prompt_version, record.repeat)
+
+
+def _load_checkpoint(
+    out_dir: Path, judge_id: str, expected_meta: dict
+) -> dict[tuple[str, int, str, int], JudgeRecord]:
+    data_path, meta_path = checkpoint_paths(out_dir, judge_id)
+    if not data_path.exists() and not meta_path.exists():
+        return {}
+    if not meta_path.is_file():
+        raise JudgeRunError(
+            f"{data_path} has no metadata file {meta_path.name}; inspect the checkpoint"
+        )
+    found = json.loads(meta_path.read_text())
+    if found != expected_meta:
+        raise JudgeRunError(
+            f"checkpoint {data_path} was made with different inputs; inspect it before you "
+            "resume (the checkpoint is not used or changed)"
+        )
+    done: dict[tuple[str, int, str, int], JudgeRecord] = {}
+    if data_path.is_file():
+        for line in data_path.read_text(encoding="utf-8").splitlines():
+            if not line.strip():
+                continue
+            try:
+                record = JudgeRecord.model_validate_json(line)
+            except ValueError:
+                break  # a line cut by an interruption; judge this response again
+            done[_judgement_key(record)] = record
+    return done
 
 
 def select_passages(
@@ -264,15 +317,34 @@ def judge_run(
         raise JudgeRunError(f"invalid response records: {issues[0]}")
 
     started = datetime.now(UTC)
+    out_dir.mkdir(exist_ok=True)
+    checkpoint_meta = {
+        "judge_id": config.judge_id,
+        "judge_config_sha256": sha256_file(judge_config_path),
+        "responses_sha256": sha256_file(responses_path),
+        "dataset_sha256": run_manifest.dataset_sha256,
+        "prompt_versions": versions,
+        "repeats": repeats,
+    }
+    done = _load_checkpoint(out_dir, config.judge_id, checkpoint_meta)
+    partial_path, partial_meta_path = checkpoint_paths(out_dir, config.judge_id)
     adapter = adapter_factory(config.model)  # may raise AdapterError: nothing written yet
+    if not partial_meta_path.exists():
+        partial_meta_path.write_text(json.dumps(checkpoint_meta, indent=2) + "\n")
     judgements: list[JudgeRecord] = []
+    n_resumed = 0
     try:
-        for _, record in responses:
-            item = items[record.question_id]
-            for version in versions:
-                for repeat in range(repeats):
-                    judgements.append(
-                        judge_one(
+        with partial_path.open("a", encoding="utf-8") as checkpoint:
+            for _, record in responses:
+                item = items[record.question_id]
+                for version in versions:
+                    for repeat in range(repeats):
+                        key = (record.question_id, record.trial, version, repeat)
+                        if key in done:
+                            judgements.append(done[key])
+                            n_resumed += 1
+                            continue
+                        judgement = judge_one(
                             adapter=adapter,
                             config=config,
                             record=record,
@@ -281,13 +353,14 @@ def judge_run(
                             prompt_version=version,
                             repeat=repeat,
                         )
-                    )
+                        checkpoint.write(judgement.model_dump_json() + "\n")
+                        checkpoint.flush()
+                        judgements.append(judgement)
         backend_info = adapter.runtime_info()
     finally:
         adapter.close()
 
-    out_dir.mkdir(exist_ok=True)
-    out_path.write_text("".join(j.model_dump_json() + "\n" for j in judgements), encoding="utf-8")
+    _write_atomic(out_path, "".join(j.model_dump_json() + "\n" for j in judgements))
     labels = [*run_manifest.status_labels, JUDGE_LABEL]
     if config.evidence_policy == EvidencePolicy.INCLUDE_UNVERIFIED:
         labels.append("JUDGES WERE SHOWN UNVERIFIED EVIDENCE - DEVELOPMENT USE ONLY")
@@ -300,6 +373,7 @@ def judge_run(
         prompt_versions=versions,
         repeats=repeats,
         status_labels=labels,
+        n_resumed_from_checkpoint=n_resumed,
         started_at=started,
         completed_at=datetime.now(UTC),
         n_judgements=len(judgements),
@@ -309,7 +383,10 @@ def judge_run(
         registry_files={str(p): sha256_file(p) for p in [*source_files, *passage_files]},
         environment=capture_environment(repo_root or Path.cwd(), backend_info),
     )
-    (out_dir / f"{config.judge_id}.manifest.json").write_text(
-        manifest.model_dump_json(indent=2) + "\n"
+    _write_atomic(
+        out_dir / f"{config.judge_id}.manifest.json", manifest.model_dump_json(indent=2) + "\n"
     )
-    return JudgeRunResult(path=out_path, manifest=manifest)
+    # The final output now contains every checkpointed judge result.
+    partial_path.unlink(missing_ok=True)
+    partial_meta_path.unlink(missing_ok=True)
+    return JudgeRunResult(path=out_path, manifest=manifest, n_resumed=n_resumed)

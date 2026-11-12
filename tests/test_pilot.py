@@ -144,3 +144,39 @@ def test_real_judge_configs_are_pinned_and_use_v2():
         assert cfg.model.revision_pinned, path.name
         assert cfg.model.licence and cfg.model.quantisation, path.name
         assert cfg.prompt_version == "v2", path.name
+
+
+def test_dry_run_lists_pending_steps_and_writes_nothing(tmp_path, monkeypatch):
+    monkeypatch.chdir(REPO_ROOT)
+    cfg = pilot_config(tmp_path)
+    result = runner.invoke(app, ["pilot", "--config", str(cfg), "--dry-run"])
+    assert result.exit_code == 0, result.output
+    assert "[evaluate] mock-scripted / baseline" in result.output
+    assert "[judge] mock-judge-a on mock-scripted__oracle" in result.output
+    assert not (tmp_path / "pilot").exists()
+
+
+def test_judge_only_never_runs_inference(tmp_path, monkeypatch):
+    monkeypatch.chdir(REPO_ROOT)
+    cfg = pilot_config(tmp_path)
+    result = runner.invoke(app, ["pilot", "--config", str(cfg), "--judge-only"])
+    assert result.exit_code == EXIT_INVALID
+    assert "does not run model inference" in result.output
+    assert not (tmp_path / "pilot" / "mock-scripted__baseline").exists()
+
+
+def test_judge_only_resumes_only_missing_judge_steps(ran):
+    out, cfg, _ = ran
+    judgements = out / "mock-scripted__retrieved" / "judgements"
+    kept = judgements / "mock-judge-b.jsonl.kept"
+    (judgements / "mock-judge-b.jsonl").rename(kept)
+    dry = runner.invoke(app, ["pilot", "--config", str(cfg), "--judge-only", "--dry-run"])
+    assert dry.exit_code == 0, dry.output
+    assert "Pending steps: 1" in dry.output
+    assert "[judge] mock-judge-b on mock-scripted__retrieved" in dry.output
+    again = runner.invoke(app, ["pilot", "--config", str(cfg), "--judge-only"])
+    assert again.exit_code == 0, again.output
+    assert "[evaluate]" not in again.output and "[score]" not in again.output
+    assert again.output.count("[judge]") == 1
+    new = [r["status"] for r in load_jsonl(judgements / "mock-judge-b.jsonl")]
+    assert new == [r["status"] for r in load_jsonl(kept)]

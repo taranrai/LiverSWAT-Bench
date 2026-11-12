@@ -88,9 +88,19 @@ def run_pilot(
     passage_files: list[Path],
     log: Callable[[str], None] = print,
     repo_root: Path | None = None,
-) -> Path:
+    judge_only: bool = False,
+    dry_run: bool = False,
+) -> Path | list[str]:
+    """Run the pending pilot steps. Return the output directory.
+
+    ``judge_only``: never run model inference or scoring. Stop with an error if a run
+    directory has no model responses or no scores.
+    ``dry_run``: run nothing and write nothing. Return the list of pending steps.
+    """
     out = config.output_dir
-    out.mkdir(parents=True, exist_ok=True)
+    pending: list[str] = []
+    if not dry_run:
+        out.mkdir(parents=True, exist_ok=True)
     run_dirs: list[Path] = []
     for model_path in config.models:
         model_id = load_model_config(model_path).config_id
@@ -103,26 +113,42 @@ def run_pilot(
                         f"{run_dir} exists without a manifest (an interrupted run); "
                         "inspect and remove it, then resume"
                     )
-                log(f"[evaluate] {model_id} / {condition}")
-                run_evaluation(
-                    model_config_path=model_path,
-                    dataset_path=config.dataset,
-                    source_files=source_files,
-                    passage_files=passage_files,
-                    output_dir=out,
-                    experiment_id=run_dir.name,
-                    trials=config.trials,
-                    evidence_condition=condition,
-                    retrieval_top_k=config.retrieval_top_k,
-                    repo_root=repo_root,
-                    progress=lambda msg: log(f"  {msg}"),
-                )
+                if judge_only:
+                    raise RuntimeError(
+                        f"{run_dir} has no model responses; --judge-only does not run model "
+                        "inference"
+                    )
+                pending.append(f"[evaluate] {model_id} / {condition}")
+                if not dry_run:
+                    log(f"[evaluate] {model_id} / {condition}")
+                    run_evaluation(
+                        model_config_path=model_path,
+                        dataset_path=config.dataset,
+                        source_files=source_files,
+                        passage_files=passage_files,
+                        output_dir=out,
+                        experiment_id=run_dir.name,
+                        trials=config.trials,
+                        evidence_condition=condition,
+                        retrieval_top_k=config.retrieval_top_k,
+                        repo_root=repo_root,
+                        progress=lambda msg: log(f"  {msg}"),
+                    )
             if not (run_dir / "scores.jsonl").is_file():
-                log(f"[score] {run_dir.name}")
-                score_run(run_dir, source_files=source_files, passage_files=passage_files)
+                if judge_only and (run_dir / "manifest.json").is_file():
+                    raise RuntimeError(
+                        f"{run_dir} has no scores; run 'liverswat score' before --judge-only"
+                    )
+                pending.append(f"[score] {run_dir.name}")
+                if not dry_run:
+                    log(f"[score] {run_dir.name}")
+                    score_run(run_dir, source_files=source_files, passage_files=passage_files)
             for judge_path in config.judges:
                 judge_id = load_judge_config(judge_path).judge_id
                 if not (run_dir / "judgements" / f"{judge_id}.jsonl").is_file():
+                    pending.append(f"[judge] {judge_id} on {run_dir.name}")
+                    if dry_run:
+                        continue
                     log(f"[judge] {judge_id} on {run_dir.name}")
                     judge_run(
                         run_dir,
@@ -138,12 +164,19 @@ def run_pilot(
                 for judge_path in sens.judges:
                     judge_id = load_judge_config(judge_path).judge_id
                     path = run_dir / "judgements" / f"{judge_id}.jsonl"
-                    versions = {
-                        json.loads(line)["prompt_version"]
-                        for line in path.read_text().splitlines()
-                        if line.strip()
-                    }
+                    versions = (
+                        {
+                            json.loads(line)["prompt_version"]
+                            for line in path.read_text().splitlines()
+                            if line.strip()
+                        }
+                        if path.is_file()
+                        else set()
+                    )
                     if not set(sens.prompt_variants) <= versions:
+                        pending.append(f"[judge sensitivity] {judge_id} on {run_dir.name}")
+                        if dry_run:
+                            continue
                         log(f"[judge sensitivity] {judge_id} on {run_dir.name}")
                         judge_run(
                             run_dir,
@@ -155,7 +188,10 @@ def run_pilot(
                             overwrite=True,
                             repo_root=repo_root,
                         )
-            write_report(load_scored_run(run_dir), run_dir / "report", combine_settings(config))
+            if not dry_run:
+                write_report(load_scored_run(run_dir), run_dir / "report", combine_settings(config))
+    if dry_run:
+        return pending
     settings = combine_settings(config)
     runs = [load_scored_run(d) for d in run_dirs]
     write_comparison(runs, out / "comparison", settings)

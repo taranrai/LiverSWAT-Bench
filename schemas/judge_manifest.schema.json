@@ -48,6 +48,11 @@
       "title": "N Judgements",
       "type": "integer"
     },
+    "n_resumed_from_checkpoint": {
+      "default": 0,
+      "title": "N Resumed From Checkpoint",
+      "type": "integer"
+    },
     "prompt_versions": {
       "items": {
         "type": "string"
