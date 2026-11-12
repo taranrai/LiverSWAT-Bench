@@ -96,6 +96,7 @@ Complete each step yourself in a browser, then tick it. Do not tick from this do
 - [ ] Set `status: verified` and `date_verified`.
 
 **Each item (3)**
+- [ ] Review the draft `detection` rules added in Milestone 3: does each pattern capture the claim without matching unrelated wording?
 - [ ] Every required expected claim follows directly from its passage with no added interpretation (otherwise make the item Level B).
 - [ ] Contradicted and prohibited claims really are contradicted by the cited passage.
 - [ ] Decide whether any prohibited claim or safety requirement should be `critical`.

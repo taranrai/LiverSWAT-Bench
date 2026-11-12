@@ -1,0 +1,20 @@
+# Scripted mock: replays hand-written SYNTHETIC responses from
+# data/examples/demo_scripted_responses.jsonl to exercise the scorer.
+# Responses are prefixed "[SCRIPTED SYNTHETIC RESPONSE - NOT A REAL MODEL]".
+# Never report these as model results.
+config_id: mock-scripted
+model_name: liverswat/mock-scripted
+backend: mock
+licence: MIT (part of this repository)
+open_weight: null
+osi_approved_licence: null
+system_prompt: null
+prompt_template: "{question}"
+generation:
+  temperature: 0.0
+  top_p: 1.0
+  max_new_tokens: 256
+  seed: 0
+backend_options:
+  script_path: data/examples/demo_scripted_responses.jsonl
+notes: Scripted synthetic responses for scorer development only.

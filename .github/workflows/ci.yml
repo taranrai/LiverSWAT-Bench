@@ -35,3 +35,10 @@ jobs:
         run: |
           liverswat evaluate --model mock --dataset data/examples/demo_items.jsonl --experiment-id ci-mock-demo
           liverswat evaluate --model mock --dataset data/pilot/uk_cmo_pilot_items.jsonl --experiment-id ci-mock-pilot
+      - name: Score and report scripted synthetic responses
+        run: |
+          liverswat evaluate --model mock-scripted --dataset data/examples/demo_items.jsonl --experiment-id ci-scripted-demo
+          liverswat score --results results/ci-scripted-demo
+          liverswat report --results results/ci-scripted-demo
+          liverswat score --results results/ci-mock-pilot
+          liverswat compare --results results

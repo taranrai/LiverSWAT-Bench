@@ -17,6 +17,17 @@
           "title": "Claim Id",
           "type": "string"
         },
+        "detection": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DetectionRule"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "evidence_passage_ids": {
           "items": {
             "pattern": "^PSG-[A-Z0-9]+(-[A-Z0-9]+)*$",
@@ -38,6 +49,58 @@
         "evidence_passage_ids"
       ],
       "title": "ContradictedClaim",
+      "type": "object"
+    },
+    "DetectionRule": {
+      "additionalProperties": false,
+      "description": "Researcher-authored, reproducible rule for detecting a statement in a response.\n\nAll conditions must hold within a single sentence. Patterns are\ncase-insensitive regular expressions. A rule match is evidence that the\nwording is present, not proof that the statement is clinically correct.",
+      "properties": {
+        "all_of": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "title": "All Of",
+          "type": "array"
+        },
+        "any_of": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "title": "Any Of",
+          "type": "array"
+        },
+        "negation_sensitive": {
+          "default": true,
+          "title": "Negation Sensitive",
+          "type": "boolean"
+        },
+        "notes": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Notes"
+        },
+        "numeric": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/NumericSpec"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "title": "DetectionRule",
       "type": "object"
     },
     "Difficulty": {
@@ -124,6 +187,17 @@
           "title": "Claim Id",
           "type": "string"
         },
+        "detection": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DetectionRule"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "evidence_passage_ids": {
           "items": {
             "pattern": "^PSG-[A-Z0-9]+(-[A-Z0-9]+)*$",
@@ -152,6 +226,27 @@
       "title": "ExpectedClaim",
       "type": "object"
     },
+    "NumericSpec": {
+      "additionalProperties": false,
+      "description": "A number that must appear immediately followed by a unit, e.g. ``14 units``.",
+      "properties": {
+        "unit_pattern": {
+          "minLength": 1,
+          "title": "Unit Pattern",
+          "type": "string"
+        },
+        "value": {
+          "title": "Value",
+          "type": "number"
+        }
+      },
+      "required": [
+        "value",
+        "unit_pattern"
+      ],
+      "title": "NumericSpec",
+      "type": "object"
+    },
     "ProhibitedClaim": {
       "additionalProperties": false,
       "properties": {
@@ -164,6 +259,17 @@
           "default": false,
           "title": "Critical",
           "type": "boolean"
+        },
+        "detection": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DetectionRule"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "evidence_passage_ids": {
           "items": {
@@ -231,6 +337,26 @@
           "title": "Description",
           "type": "string"
         },
+        "detection": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DetectionRule"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "detection_mode": {
+          "default": "requires",
+          "enum": [
+            "requires",
+            "forbids"
+          ],
+          "title": "Detection Mode",
+          "type": "string"
+        },
         "evidence_passage_ids": {
           "items": {
             "pattern": "^PSG-[A-Z0-9]+(-[A-Z0-9]+)*$",
@@ -281,6 +407,26 @@
         "description": {
           "minLength": 1,
           "title": "Description",
+          "type": "string"
+        },
+        "detection": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DetectionRule"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "detection_mode": {
+          "default": "requires",
+          "enum": [
+            "requires",
+            "forbids"
+          ],
+          "title": "Detection Mode",
           "type": "string"
         },
         "requirement_id": {

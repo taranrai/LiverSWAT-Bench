@@ -213,19 +213,121 @@ def judge(
 
 
 @app.command()
-def compare(
-    results: Annotated[Path, typer.Option("--results", help="Results directory.")],
+def score(
+    results: Annotated[
+        Path, typer.Option("--results", help="Run directory (contains responses.jsonl).")
+    ],
+    data_dir: Annotated[
+        Path, typer.Option(help="Directory searched for the evidence registry.")
+    ] = Path("data"),
+    dataset: Annotated[
+        Path | None,
+        typer.Option(
+            help="Dataset file. Default: the path recorded in the run manifest. "
+            "Its sha256 must match the run."
+        ),
+    ] = None,
+    overwrite: Annotated[bool, typer.Option(help="Replace an existing scores.jsonl.")] = False,
 ) -> None:
-    """Compare models with paired, case-level statistics. [Milestone 7]"""
-    _not_implemented("compare", 7)
+    """Score a run with deterministic, rule-based checks (scorer det-1).
+
+    Writes scores.jsonl (one JSON evaluation record per response) and
+    scoring_manifest.json. Primary eligibility is re-checked against the current
+    evidence registry. Dimensions that cannot be scored by rule are recorded as
+    abstained, never as zero.
+    """
+    from liverswat_bench.evaluation.score_run import ScoringError, score_run
+
+    if not data_dir.is_dir():
+        typer.echo(f"error: data directory not found: {data_dir}", err=True)
+        raise typer.Exit(EXIT_INVALID)
+    _, source_files, passage_files = discover_files(data_dir)
+    try:
+        result = score_run(
+            results,
+            source_files=source_files,
+            passage_files=passage_files,
+            dataset_path=dataset,
+            overwrite=overwrite,
+        )
+    except ScoringError as exc:
+        typer.echo(f"error: {exc}", err=True)
+        raise typer.Exit(EXIT_INVALID) from exc
+    m = result.manifest
+    for label in m.status_labels:
+        typer.echo(f"*** {label} ***")
+    typer.echo(f"Scorer:   {m.scorer}")
+    typer.echo(f"Records:  {m.n_records} ({m.n_primary_eligible_records} primary-eligible)")
+    typer.echo(f"Scores:   {result.scores_path}")
+
+
+def _scored_run_dirs(results: Path) -> list[Path]:
+    if (results / "scores.jsonl").is_file():
+        return [results]
+    return sorted(p.parent for p in results.glob("*/scores.jsonl"))
 
 
 @app.command()
 def report(
-    results: Annotated[Path, typer.Option("--results", help="Results directory.")],
+    results: Annotated[Path, typer.Option("--results", help="Scored run directory.")],
+    output_dir: Annotated[
+        Path | None, typer.Option(help="Where to write the report. Default: RESULTS/report.")
+    ] = None,
 ) -> None:
-    """Generate Markdown/CSV/JSON research reports. [Milestone 3]"""
-    _not_implemented("report", 3)
+    """Write summary.json, item_scores.csv, dimension_summary.csv and report.md for a run.
+
+    Primary-eligible and non-primary records are always reported separately.
+    Critical flags, abstentions and missing scores are counted explicitly.
+    """
+    from liverswat_bench.reporting import ReportError, load_scored_run, write_report
+
+    try:
+        run = load_scored_run(results)
+        paths = write_report(run, output_dir or results / "report")
+    except ReportError as exc:
+        typer.echo(f"error: {exc}", err=True)
+        raise typer.Exit(EXIT_INVALID) from exc
+    for name, path in paths.items():
+        typer.echo(f"{name}: {path}")
+
+
+@app.command()
+def compare(
+    results: Annotated[
+        list[Path],
+        typer.Option(
+            "--results",
+            help="Scored run directories, or one parent directory containing them. "
+            "Repeat --results to list several runs.",
+        ),
+    ],
+    output_dir: Annotated[
+        Path, typer.Option(help="Where to write comparison.{json,csv,md}.")
+    ] = Path("results/comparison"),
+) -> None:
+    """Descriptive side-by-side comparison of scored runs.
+
+    Reports case-level means per dimension, separately for primary and
+    non-primary records, and warns when runs used different datasets or
+    scorers. Paired statistical comparison is planned for Milestone 7.
+    """
+    from liverswat_bench.reporting import ReportError, load_scored_run, write_comparison
+
+    run_dirs: list[Path] = []
+    for path in results:
+        run_dirs.extend(_scored_run_dirs(path))
+    if not run_dirs:
+        typer.echo("error: no scored runs found (run 'liverswat score' first)", err=True)
+        raise typer.Exit(EXIT_INVALID)
+    try:
+        runs = [load_scored_run(d) for d in run_dirs]
+        paths = write_comparison(runs, output_dir)
+    except ReportError as exc:
+        typer.echo(f"error: {exc}", err=True)
+        raise typer.Exit(EXIT_INVALID) from exc
+    typer.echo(f"Compared {len(runs)} run(s).")
+    for name, path in paths.items():
+        typer.echo(f"{name}: {path}")
 
 
 if __name__ == "__main__":
