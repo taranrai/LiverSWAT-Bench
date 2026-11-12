@@ -1,0 +1,300 @@
+{
+  "summary_version": "pilot-summary-1",
+  "pilot_id": "m5-real-model-pilot",
+  "created_at": "2026-11-12T22:01:57.760131+00:00",
+  "result_label": "REAL MODEL RESULTS - EXPERIMENTAL RESULTS, SOURCE EVIDENCE PENDING HUMAN REVIEW",
+  "description": "Two open-weight models answer 12 NHS benchmark items under three evidence conditions. Evaluation rules and two independent judge models assess each model response.",
+  "dataset": "data/pilot/nhs_pilot_items.jsonl",
+  "conditions": [
+    "baseline",
+    "retrieved",
+    "oracle"
+  ],
+  "combine_policy": "rules_first_review_on_disagreement",
+  "judge_prompt_version": "v2",
+  "notes": [
+    "Agreement between automated evaluators measures consistency, not correctness.",
+    "No independent reference standard exists; evaluator accuracy is not reported."
+  ],
+  "items_by_verification_status": {
+    "source_pending": 12
+  },
+  "runs": [
+    {
+      "run": "ollama-llama3.1-8b__baseline",
+      "model": "llama3.1:8b",
+      "model_revision": "sha256:46e0c10c039e019119339687c3c1757cc81b9da49709a3b3924863ba87ca666e",
+      "backend": "ollama",
+      "evidence_condition": "baseline",
+      "status_labels": [
+        "EVIDENCE-GROUNDED, NOT CLINICALLY VALIDATED",
+        "INCLUDES ITEMS THAT ARE NOT SOURCE-VERIFIED - NOT PRIMARY BENCHMARK RESULTS",
+        "REAL MODEL OUTPUTS - EXPERIMENTAL RESULTS"
+      ],
+      "n_items": 12,
+      "valid_model_responses": {
+        "numerator": 12,
+        "denominator": 12,
+        "rate": 1.0
+      },
+      "model_latency_s": {
+        "n": 12,
+        "mean": 8.89,
+        "median": 9.614
+      },
+      "model_tokens": {
+        "prompt": 282,
+        "completion": 4655
+      },
+      "retrieval_oracle_recall_mean": null,
+      "retrieval_n": 0,
+      "rules": {
+        "abstention": {
+          "numerator": 59,
+          "denominator": 72,
+          "rate": 0.8194
+        },
+        "contradicted_claim_detected": {
+          "numerator": 0,
+          "denominator": 5,
+          "rate": 0.0
+        },
+        "critical_rule_detected_records": 2,
+        "critical_needs_review_records": 0,
+        "factual_accuracy_mean": 2.5,
+        "factual_accuracy_n_items": 10
+      },
+      "judges": null
+    },
+    {
+      "run": "ollama-llama3.1-8b__retrieved",
+      "model": "llama3.1:8b",
+      "model_revision": "sha256:46e0c10c039e019119339687c3c1757cc81b9da49709a3b3924863ba87ca666e",
+      "backend": "ollama",
+      "evidence_condition": "retrieved",
+      "status_labels": [
+        "EVIDENCE-GROUNDED, NOT CLINICALLY VALIDATED",
+        "INCLUDES ITEMS THAT ARE NOT SOURCE-VERIFIED - NOT PRIMARY BENCHMARK RESULTS",
+        "REAL MODEL OUTPUTS - EXPERIMENTAL RESULTS"
+      ],
+      "n_items": 12,
+      "valid_model_responses": {
+        "numerator": 12,
+        "denominator": 12,
+        "rate": 1.0
+      },
+      "model_latency_s": {
+        "n": 12,
+        "mean": 0.989,
+        "median": 0.844
+      },
+      "model_tokens": {
+        "prompt": 1600,
+        "completion": 351
+      },
+      "retrieval_oracle_recall_mean": 0.6875,
+      "retrieval_n": 12,
+      "rules": {
+        "abstention": {
+          "numerator": 57,
+          "denominator": 72,
+          "rate": 0.7917
+        },
+        "contradicted_claim_detected": {
+          "numerator": 0,
+          "denominator": 5,
+          "rate": 0.0
+        },
+        "critical_rule_detected_records": 0,
+        "critical_needs_review_records": 0,
+        "factual_accuracy_mean": 2.3333,
+        "factual_accuracy_n_items": 12
+      },
+      "judges": null
+    },
+    {
+      "run": "ollama-llama3.1-8b__oracle",
+      "model": "llama3.1:8b",
+      "model_revision": "sha256:46e0c10c039e019119339687c3c1757cc81b9da49709a3b3924863ba87ca666e",
+      "backend": "ollama",
+      "evidence_condition": "oracle",
+      "status_labels": [
+        "EVIDENCE-GROUNDED, NOT CLINICALLY VALIDATED",
+        "INCLUDES ITEMS THAT ARE NOT SOURCE-VERIFIED - NOT PRIMARY BENCHMARK RESULTS",
+        "REAL MODEL OUTPUTS - EXPERIMENTAL RESULTS"
+      ],
+      "n_items": 12,
+      "valid_model_responses": {
+        "numerator": 12,
+        "denominator": 12,
+        "rate": 1.0
+      },
+      "model_latency_s": {
+        "n": 12,
+        "mean": 0.898,
+        "median": 0.684
+      },
+      "model_tokens": {
+        "prompt": 1205,
+        "completion": 385
+      },
+      "retrieval_oracle_recall_mean": null,
+      "retrieval_n": 0,
+      "rules": {
+        "abstention": {
+          "numerator": 57,
+          "denominator": 72,
+          "rate": 0.7917
+        },
+        "contradicted_claim_detected": {
+          "numerator": 0,
+          "denominator": 5,
+          "rate": 0.0
+        },
+        "critical_rule_detected_records": 0,
+        "critical_needs_review_records": 0,
+        "factual_accuracy_mean": 2.5833,
+        "factual_accuracy_n_items": 12
+      },
+      "judges": null
+    },
+    {
+      "run": "ollama-qwen2.5-7b__baseline",
+      "model": "qwen2.5:7b",
+      "model_revision": "sha256:845dbda0ea48ed749caafd9e6037047aa19acfcfd82e704d7ca97d631a0b697e",
+      "backend": "ollama",
+      "evidence_condition": "baseline",
+      "status_labels": [
+        "EVIDENCE-GROUNDED, NOT CLINICALLY VALIDATED",
+        "INCLUDES ITEMS THAT ARE NOT SOURCE-VERIFIED - NOT PRIMARY BENCHMARK RESULTS",
+        "REAL MODEL OUTPUTS - EXPERIMENTAL RESULTS"
+      ],
+      "n_items": 12,
+      "valid_model_responses": {
+        "numerator": 12,
+        "denominator": 12,
+        "rate": 1.0
+      },
+      "model_latency_s": {
+        "n": 12,
+        "mean": 7.771,
+        "median": 8.071
+      },
+      "model_tokens": {
+        "prompt": 510,
+        "completion": 3800
+      },
+      "retrieval_oracle_recall_mean": null,
+      "retrieval_n": 0,
+      "rules": {
+        "abstention": {
+          "numerator": 58,
+          "denominator": 72,
+          "rate": 0.8056
+        },
+        "contradicted_claim_detected": {
+          "numerator": 0,
+          "denominator": 5,
+          "rate": 0.0
+        },
+        "critical_rule_detected_records": 0,
+        "critical_needs_review_records": 0,
+        "factual_accuracy_mean": 2.5,
+        "factual_accuracy_n_items": 10
+      },
+      "judges": null
+    },
+    {
+      "run": "ollama-qwen2.5-7b__retrieved",
+      "model": "qwen2.5:7b",
+      "model_revision": "sha256:845dbda0ea48ed749caafd9e6037047aa19acfcfd82e704d7ca97d631a0b697e",
+      "backend": "ollama",
+      "evidence_condition": "retrieved",
+      "status_labels": [
+        "EVIDENCE-GROUNDED, NOT CLINICALLY VALIDATED",
+        "INCLUDES ITEMS THAT ARE NOT SOURCE-VERIFIED - NOT PRIMARY BENCHMARK RESULTS",
+        "REAL MODEL OUTPUTS - EXPERIMENTAL RESULTS"
+      ],
+      "n_items": 12,
+      "valid_model_responses": {
+        "numerator": 12,
+        "denominator": 12,
+        "rate": 1.0
+      },
+      "model_latency_s": {
+        "n": 12,
+        "mean": 2.268,
+        "median": 1.723
+      },
+      "model_tokens": {
+        "prompt": 1835,
+        "completion": 964
+      },
+      "retrieval_oracle_recall_mean": 0.6875,
+      "retrieval_n": 12,
+      "rules": {
+        "abstention": {
+          "numerator": 56,
+          "denominator": 72,
+          "rate": 0.7778
+        },
+        "contradicted_claim_detected": {
+          "numerator": 0,
+          "denominator": 5,
+          "rate": 0.0
+        },
+        "critical_rule_detected_records": 0,
+        "critical_needs_review_records": 0,
+        "factual_accuracy_mean": 2.75,
+        "factual_accuracy_n_items": 12
+      },
+      "judges": null
+    },
+    {
+      "run": "ollama-qwen2.5-7b__oracle",
+      "model": "qwen2.5:7b",
+      "model_revision": "sha256:845dbda0ea48ed749caafd9e6037047aa19acfcfd82e704d7ca97d631a0b697e",
+      "backend": "ollama",
+      "evidence_condition": "oracle",
+      "status_labels": [
+        "EVIDENCE-GROUNDED, NOT CLINICALLY VALIDATED",
+        "INCLUDES ITEMS THAT ARE NOT SOURCE-VERIFIED - NOT PRIMARY BENCHMARK RESULTS",
+        "REAL MODEL OUTPUTS - EXPERIMENTAL RESULTS"
+      ],
+      "n_items": 12,
+      "valid_model_responses": {
+        "numerator": 12,
+        "denominator": 12,
+        "rate": 1.0
+      },
+      "model_latency_s": {
+        "n": 12,
+        "mean": 1.775,
+        "median": 1.583
+      },
+      "model_tokens": {
+        "prompt": 1441,
+        "completion": 799
+      },
+      "retrieval_oracle_recall_mean": null,
+      "retrieval_n": 0,
+      "rules": {
+        "abstention": {
+          "numerator": 56,
+          "denominator": 72,
+          "rate": 0.7778
+        },
+        "contradicted_claim_detected": {
+          "numerator": 0,
+          "denominator": 5,
+          "rate": 0.0
+        },
+        "critical_rule_detected_records": 1,
+        "critical_needs_review_records": 0,
+        "factual_accuracy_mean": 2.9167,
+        "factual_accuracy_n_items": 12
+      },
+      "judges": null
+    }
+  ]
+}

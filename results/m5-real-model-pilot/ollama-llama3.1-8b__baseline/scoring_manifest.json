@@ -1,0 +1,23 @@
+{
+  "schema_version": "1",
+  "experiment_id": "ollama-llama3.1-8b__baseline",
+  "scorer": "det-2/rules-1",
+  "scored_at": "2026-11-12T21:59:12.394801Z",
+  "status_labels": [
+    "EVIDENCE-GROUNDED, NOT CLINICALLY VALIDATED",
+    "INCLUDES ITEMS THAT ARE NOT SOURCE-VERIFIED - NOT PRIMARY BENCHMARK RESULTS",
+    "REAL MODEL OUTPUTS - EXPERIMENTAL RESULTS",
+    "AUTOMATED RULE-BASED SCORES - NOT A CLINICAL SAFETY ASSESSMENT"
+  ],
+  "responses_sha256": "389a4a23c9dd469c17f67129eede2c13f354d566bd75380787422342a8239ec3",
+  "dataset_path": "data/pilot/nhs_pilot_items.jsonl",
+  "dataset_sha256": "43c98de9e7d76cb5d8caf05e516d4245c88d2ec144a8353832e214daa01c404c",
+  "registry_files": {
+    "data/evidence/sources.jsonl": "af01ea2f31ced3adfe79e1db89be1061ded9206b62422c4b17d6a8137ec46fa0",
+    "data/examples/demo_sources.jsonl": "3eb241f76c8ef319edc25b5dd1923c86f17ab51b7134fb6430372a89211b1d6e",
+    "data/evidence/passages.jsonl": "69ea9e564eeab3d8f7f8cbb7ed2f80bf8eff95e9065918fb02dd0562342ea949",
+    "data/examples/demo_passages.jsonl": "7079e5ed697a01e4ea9d5217a04d27a81cb3e2733098f9beef28d3fc7d22622b"
+  },
+  "n_records": 12,
+  "n_primary_eligible_records": 0
+}

@@ -1,0 +1,322 @@
+{
+  "experiment_id": "ollama-qwen2.5-7b__retrieved",
+  "status_labels": [
+    "EVIDENCE-GROUNDED, NOT CLINICALLY VALIDATED",
+    "INCLUDES ITEMS THAT ARE NOT SOURCE-VERIFIED - NOT PRIMARY BENCHMARK RESULTS",
+    "REAL MODEL OUTPUTS - EXPERIMENTAL RESULTS",
+    "AUTOMATED RULE-BASED SCORES - NOT A CLINICAL SAFETY ASSESSMENT"
+  ],
+  "scorer": "det-2/rules-1",
+  "scored_at": "2026-11-12T22:01:36.222405+00:00",
+  "model": {
+    "config_id": "ollama-qwen2.5-7b",
+    "model_name": "qwen2.5:7b",
+    "model_revision": "sha256:845dbda0ea48ed749caafd9e6037047aa19acfcfd82e704d7ca97d631a0b697e",
+    "backend": "ollama",
+    "licence": "Apache License 2.0 (from 'ollama show --license')",
+    "open_weight": true,
+    "osi_approved_licence": true,
+    "parameter_count": "7.6B",
+    "quantisation": "Q4_K_M"
+  },
+  "generation": {
+    "temperature": 0.0,
+    "top_p": 1.0,
+    "max_new_tokens": 1024,
+    "seed": 0,
+    "stop": []
+  },
+  "trials": 1,
+  "dataset": {
+    "path": "data/pilot/nhs_pilot_items.jsonl",
+    "sha256": "43c98de9e7d76cb5d8caf05e516d4245c88d2ec144a8353832e214daa01c404c"
+  },
+  "registry_files": {
+    "data/evidence/sources.jsonl": "af01ea2f31ced3adfe79e1db89be1061ded9206b62422c4b17d6a8137ec46fa0",
+    "data/examples/demo_sources.jsonl": "3eb241f76c8ef319edc25b5dd1923c86f17ab51b7134fb6430372a89211b1d6e",
+    "data/evidence/passages.jsonl": "69ea9e564eeab3d8f7f8cbb7ed2f80bf8eff95e9065918fb02dd0562342ea949",
+    "data/examples/demo_passages.jsonl": "7079e5ed697a01e4ea9d5217a04d27a81cb3e2733098f9beef28d3fc7d22622b"
+  },
+  "responses_sha256": "b351bb63bd50d36f7daca8cf477d91e7f184664ddaca7ac9a5c6095114f61f64",
+  "git": {
+    "commit": "e44e6e566127c3fbe1c5124fb391dfe140a03c69",
+    "dirty": true
+  },
+  "weights_note": "Dimension weights are provisional research design choices, not clinically validated.",
+  "partitions": {
+    "primary": {
+      "n_records": 0,
+      "n_items": 0,
+      "n_generation_errors": 0,
+      "items_by_track": {},
+      "items_by_verification_status": {},
+      "n_synthetic_items": 0,
+      "dimensions": {
+        "factual_accuracy": {
+          "weight": 0.25,
+          "case_level_mean": null,
+          "n_items_scored": 0,
+          "n_records": {
+            "scored": 0,
+            "not_applicable": 0,
+            "abstained": 0,
+            "missing": 0
+          },
+          "score_distribution": {},
+          "abstention_and_missing_reasons": {}
+        },
+        "safety_behaviour": {
+          "weight": 0.25,
+          "case_level_mean": null,
+          "n_items_scored": 0,
+          "n_records": {
+            "scored": 0,
+            "not_applicable": 0,
+            "abstained": 0,
+            "missing": 0
+          },
+          "score_distribution": {},
+          "abstention_and_missing_reasons": {}
+        },
+        "uk_evidence_alignment": {
+          "weight": 0.2,
+          "case_level_mean": null,
+          "n_items_scored": 0,
+          "n_records": {
+            "scored": 0,
+            "not_applicable": 0,
+            "abstained": 0,
+            "missing": 0
+          },
+          "score_distribution": {},
+          "abstention_and_missing_reasons": {}
+        },
+        "actionability": {
+          "weight": 0.1,
+          "case_level_mean": null,
+          "n_items_scored": 0,
+          "n_records": {
+            "scored": 0,
+            "not_applicable": 0,
+            "abstained": 0,
+            "missing": 0
+          },
+          "score_distribution": {},
+          "abstention_and_missing_reasons": {}
+        },
+        "communication_quality": {
+          "weight": 0.1,
+          "case_level_mean": null,
+          "n_items_scored": 0,
+          "n_records": {
+            "scored": 0,
+            "not_applicable": 0,
+            "abstained": 0,
+            "missing": 0
+          },
+          "score_distribution": {},
+          "abstention_and_missing_reasons": {}
+        },
+        "uncertainty_handling": {
+          "weight": 0.1,
+          "case_level_mean": null,
+          "n_items_scored": 0,
+          "n_records": {
+            "scored": 0,
+            "not_applicable": 0,
+            "abstained": 0,
+            "missing": 0
+          },
+          "score_distribution": {},
+          "abstention_and_missing_reasons": {}
+        }
+      },
+      "aggregate": {
+        "n_records": {},
+        "case_level_mean_of_complete": null,
+        "n_items_with_complete_aggregate": 0
+      },
+      "critical_flags": {
+        "n_records_rule_detected": 0,
+        "n_records_needs_review": 0,
+        "items_with_rule_detected": [],
+        "n_records_with_unchecked_critical": 0,
+        "flags": []
+      },
+      "check_outcomes": {},
+      "claim_assessments": {
+        "by_classification": {},
+        "n_abstained": 0
+      },
+      "ineligibility_reasons": {}
+    },
+    "non_primary": {
+      "n_records": 12,
+      "n_items": 12,
+      "n_generation_errors": 0,
+      "items_by_track": {
+        "exploratory": 12
+      },
+      "items_by_verification_status": {
+        "source_pending": 12
+      },
+      "n_synthetic_items": 0,
+      "dimensions": {
+        "factual_accuracy": {
+          "weight": 0.25,
+          "case_level_mean": 2.75,
+          "n_items_scored": 12,
+          "n_records": {
+            "scored": 12,
+            "not_applicable": 0,
+            "abstained": 0,
+            "missing": 0
+          },
+          "score_distribution": {
+            "1": 1,
+            "2": 1,
+            "3": 10
+          },
+          "abstention_and_missing_reasons": {}
+        },
+        "safety_behaviour": {
+          "weight": 0.25,
+          "case_level_mean": 3.0,
+          "n_items_scored": 3,
+          "n_records": {
+            "scored": 3,
+            "not_applicable": 0,
+            "abstained": 9,
+            "missing": 0
+          },
+          "score_distribution": {
+            "3": 3
+          },
+          "abstention_and_missing_reasons": {
+            "item defines no safety checks": 9
+          }
+        },
+        "uk_evidence_alignment": {
+          "weight": 0.2,
+          "case_level_mean": null,
+          "n_items_scored": 0,
+          "n_records": {
+            "scored": 0,
+            "not_applicable": 0,
+            "abstained": 12,
+            "missing": 0
+          },
+          "score_distribution": {},
+          "abstention_and_missing_reasons": {
+            "requires judgement against the evidence (LLM judges)": 12
+          }
+        },
+        "actionability": {
+          "weight": 0.1,
+          "case_level_mean": null,
+          "n_items_scored": 0,
+          "n_records": {
+            "scored": 0,
+            "not_applicable": 0,
+            "abstained": 12,
+            "missing": 0
+          },
+          "score_distribution": {},
+          "abstention_and_missing_reasons": {
+            "requires judgement of next steps (LLM judges)": 12
+          }
+        },
+        "communication_quality": {
+          "weight": 0.1,
+          "case_level_mean": null,
+          "n_items_scored": 0,
+          "n_records": {
+            "scored": 0,
+            "not_applicable": 0,
+            "abstained": 12,
+            "missing": 0
+          },
+          "score_distribution": {},
+          "abstention_and_missing_reasons": {
+            "requires judgement of clarity and tone (LLM judges)": 12
+          }
+        },
+        "uncertainty_handling": {
+          "weight": 0.1,
+          "case_level_mean": 3.0,
+          "n_items_scored": 1,
+          "n_records": {
+            "scored": 1,
+            "not_applicable": 0,
+            "abstained": 11,
+            "missing": 0
+          },
+          "score_distribution": {
+            "3": 1
+          },
+          "abstention_and_missing_reasons": {
+            "item defines no uncertainty requirements": 11
+          }
+        }
+      },
+      "aggregate": {
+        "n_records": {
+          "incomplete": 12
+        },
+        "case_level_mean_of_complete": null,
+        "n_items_with_complete_aggregate": 0
+      },
+      "critical_flags": {
+        "n_records_rule_detected": 0,
+        "n_records_needs_review": 0,
+        "items_with_rule_detected": [],
+        "n_records_with_unchecked_critical": 0,
+        "flags": []
+      },
+      "check_outcomes": {
+        "expected_claim:present": 16,
+        "expected_claim:absent": 8,
+        "contradicted_claim:not_detected": 5,
+        "prohibited_claim:not_detected": 3,
+        "safety_requirement:met": 3,
+        "uncertainty_requirement:met": 2
+      },
+      "claim_assessments": {
+        "by_classification": {
+          "supported": 16
+        },
+        "n_abstained": 0
+      },
+      "ineligibility_reasons": {
+        "verification status source_pending": 12,
+        "track exploratory": 12,
+        "source SRC-NHS-NAFLD is unverified": 3,
+        "passage PSG-NHS-NAFLD-SYMPTOMS is unverified": 1,
+        "passage PSG-NHS-NAFLD-FOUND is unverified": 1,
+        "passage PSG-NHS-NAFLD-SELFCARE is unverified": 1,
+        "passage PSG-NHS-NAFLD-EXERCISE is unverified": 1,
+        "passage PSG-NHS-NAFLD-WEIGHT is unverified": 1,
+        "passage PSG-NHS-NAFLD-ALCOHOL is unverified": 1,
+        "passage PSG-NHS-NAFLD-CHECKUPS is unverified": 1,
+        "source SRC-NHS-ARLD is unverified": 3,
+        "passage PSG-NHS-ARLD-RECOVER is unverified": 1,
+        "passage PSG-NHS-ARLD-CIRRHOSIS is unverified": 1,
+        "passage PSG-NHS-ARLD-STOPPING is unverified": 1,
+        "passage PSG-NHS-ARLD-999 is unverified": 1,
+        "source SRC-NHS-HEPC is unverified": 3,
+        "passage PSG-NHS-HEPC-CURE is unverified": 1,
+        "passage PSG-NHS-HEPC-TABLETS is unverified": 1,
+        "passage PSG-NHS-HEPC-TRANSMISSION is unverified": 1,
+        "passage PSG-NHS-HEPC-BLOOD is unverified": 1,
+        "passage PSG-NHS-HEPC-RETEST is unverified": 1,
+        "source SRC-NHS-HEPB is unverified": 2,
+        "passage PSG-NHS-HEPB-VACCINE is unverified": 1,
+        "passage PSG-NHS-HEPB-CHRONIC is unverified": 1,
+        "passage PSG-NHS-HEPB-SPECIALIST is unverified": 1,
+        "source SRC-NHS-JAUNDICE is unverified": 1,
+        "passage PSG-NHS-JAUNDICE-DEF is unverified": 1,
+        "passage PSG-NHS-JAUNDICE-URGENT is unverified": 1
+      }
+    }
+  }
+}

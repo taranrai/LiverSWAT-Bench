@@ -1,0 +1,21 @@
+# Real judge model, local inference through Ollama. Automated evaluator, not a clinical expert.
+# model_revision is the Ollama content digest; the adapter refuses to run if it differs.
+# evidence_policy include_unverified: no source evidence is verified yet (development use only).
+judge_id: smoke-nemo-verified-only
+prompt_version: v2
+evidence_policy: verified_only
+max_retries: 2
+cost: {currency: null, input_per_1k_tokens: null, output_per_1k_tokens: null}
+notes: Local inference; no per-token cost. Licence from 'ollama show --license'.
+model:
+  config_id: ollama-mistral-nemo-12b
+  model_name: mistral-nemo:12b
+  model_revision: sha256:e7e06d107c6c86ed0cf45445f1790720b5092149c4c95f4d965844e9afbfdc89
+  backend: ollama
+  licence: Apache License 2.0
+  open_weight: true
+  osi_approved_licence: true
+  parameter_count: 12.2B
+  quantisation: Q4_0
+  generation: {temperature: 0.0, top_p: 1.0, max_new_tokens: 2048, seed: 0}
+  backend_options: {base_url: "http://localhost:11434", num_ctx: 8192, format: json, timeout_s: 900}
