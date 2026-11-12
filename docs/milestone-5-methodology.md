@@ -8,7 +8,7 @@ not been certified.
 Can automated evaluation methods consistently identify evidence-grounding failures in real
 open-weight language model responses to UK liver health questions?
 
-This pilot is an AI safety evaluation experiment. It is not a clinical validation study.
+This pilot is an artificial intelligence (AI) safety evaluation experiment. It is not a clinical validation study.
 
 ## Status of the pilot
 
@@ -31,11 +31,11 @@ This pilot is an AI safety evaluation experiment. It is not a clinical validatio
 
 ### Models
 
-Use local inference only. The pilot uses no paid API and no remote compute.
+Use local inference only. The pilot uses no paid application programming interface (API) and no remote compute.
 
 | Role | Model | Licence | Quantisation | Reason for selection |
 | --- | --- | --- | --- | --- |
-| Evaluated model | `llama3.1:8b` | Llama 3.1 Community License | Q4_K_M | Installed; fits in 24 GB of memory |
+| Evaluated model | `llama3.1:8b` | Llama 3.1 Community License | Q4_K_M | Installed; fits in 24 gigabytes (GB) of memory |
 | Evaluated model | `qwen2.5:7b` | See `configs/models/` | Q4_K_M | Different model family at a similar size |
 | Judge model | `mistral-nemo:12b` | See `configs/judges/` | Q4_0 or as installed | Different family from the evaluated models |
 | Judge model | `phi4:14b` | See `configs/judges/` | Q4_K_M or as installed | Different family from the evaluated models |

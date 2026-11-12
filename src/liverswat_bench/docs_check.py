@@ -73,16 +73,16 @@ def _strip_inline(text: str) -> str:
     return text
 
 
-def _paragraphs(markdown: str) -> list[tuple[int, str, bool]]:
-    """Return (start_line, text, is_heading) blocks of prose."""
-    blocks: list[tuple[int, str, bool]] = []
+def _paragraphs(markdown: str) -> list[tuple[int, str, str]]:
+    """Return (start_line, text, kind) blocks; kind is "prose", "heading" or "table"."""
+    blocks: list[tuple[int, str, str]] = []
     in_code = False
     current: list[str] = []
     start = 0
 
     def flush():
         if current:
-            blocks.append((start, " ".join(current), False))
+            blocks.append((start, " ".join(current), "prose"))
             current.clear()
 
     for i, raw in enumerate(markdown.splitlines(), start=1):
@@ -91,12 +91,17 @@ def _paragraphs(markdown: str) -> list[tuple[int, str, bool]]:
             in_code = not in_code
             flush()
             continue
-        if in_code or line.startswith("|") or not line:
+        if in_code or not line:
             flush()
+            continue
+        if line.startswith("|"):
+            flush()
+            if not re.fullmatch(r"[|\s:-]+", line):  # skip separator rows
+                blocks.append((i, line.strip("|").replace("|", " ; "), "table"))
             continue
         if line.startswith("#"):
             flush()
-            blocks.append((i, line.lstrip("#").strip(), True))
+            blocks.append((i, line.lstrip("#").strip(), "heading"))
             continue
         if re.match(r"^([-*+]|\d+\.)\s", line) or line.startswith(">"):
             flush()
@@ -119,7 +124,7 @@ def check_text(path: Path, markdown: str, max_words: int = DEFAULT_MAX_WORDS) ->
     findings: list[Finding] = []
     defined: set[str] = set(KNOWN_ABBREVIATIONS)
     reported_abbr: set[str] = set()
-    for line_no, block, is_heading in _paragraphs(markdown):
+    for line_no, block, kind in _paragraphs(markdown):
         text = _strip_inline(block)
         for m in _DEFINED_AFTER.finditer(text):
             defined.add(m.group(1).upper())
@@ -168,7 +173,7 @@ def check_text(path: Path, markdown: str, max_words: int = DEFAULT_MAX_WORDS) ->
                 )
             )
 
-        if is_heading:
+        if kind != "prose":  # headings and table cells are not sentences
             continue
         for sentence in _sentences(text):
             words = sentence.split()

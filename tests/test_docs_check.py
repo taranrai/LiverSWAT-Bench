@@ -82,3 +82,12 @@ def test_cli_check_docs(tmp_path):
     assert strict.exit_code == EXIT_INVALID
     missing = runner.invoke(app, ["check-docs", str(tmp_path / "none.md")])
     assert missing.exit_code == EXIT_INVALID
+
+
+def test_definitions_in_tables_count_and_table_cells_are_checked():
+    text = (
+        "| Licence | Note |\n| --- | --- |\n| Open Government Licence (OGL) | text |\n\n"
+        "The OGL applies.\n\n| Term | Use |\n| --- | --- |\n| BSG | undefined |\n"
+    )
+    found = [f for f in check_text(P, text) if f.rule == "undefined_abbreviation"]
+    assert [f.message.split('"')[1] for f in found] == ["BSG"]

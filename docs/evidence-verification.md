@@ -3,7 +3,8 @@
 Documentation follows ASD-STE100 Simplified Technical English principles. Formal compliance has
 not been certified.
 
-This document describes the source-verification workflow and the status of the source evidence.
+This document describes the source-verification workflow for National Health Service (NHS)
+and other UK sources. It also describes the status of the source evidence.
 The general policy is in [evidence_policy.md](evidence_policy.md).
 
 ## Rules
@@ -26,7 +27,8 @@ The general policy is in [evidence_policy.md](evidence_policy.md).
    liverswat evidence snapshot --out data/evidence/snapshots
    ```
 
-   The command records the HTTP status, the final URL, the retrieval time and the SHA-256 hash.
+   The command records the Hypertext Transfer Protocol (HTTP) status, the final URL, the
+   retrieval time and the Secure Hash Algorithm 256-bit (SHA-256) hash.
    Snapshots stay out of Git. Only the hashes go into the log.
 3. Run the machine check and record the result:
 
