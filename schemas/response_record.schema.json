@@ -5,7 +5,8 @@
         "mock",
         "transformers",
         "vllm",
-        "openai_compatible"
+        "openai_compatible",
+        "ollama"
       ],
       "title": "Backend",
       "type": "string"
