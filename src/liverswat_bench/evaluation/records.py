@@ -57,6 +57,23 @@ class PromptInfo(_Strict):
     messages: list[dict[str, str]]
 
 
+class EvidenceSupplied(_Strict):
+    """Which source evidence the model received (evidence experiment conditions)."""
+
+    condition: Literal["baseline", "retrieved", "oracle"] = "baseline"
+    evidence_prompt_version: str | None = None
+    passage_ids: list[str] = Field(default_factory=list)
+    passages_verified: list[str] = Field(default_factory=list)
+    retriever: str | None = None
+    retrieval_scores: dict[str, float] = Field(default_factory=dict)
+    corpus_size: int | None = None
+    corpus_sha256: str | None = None
+    #: The item's own cited passages that have stored text.
+    oracle_passage_ids: list[str] = Field(default_factory=list)
+    #: Retrieved condition only: share of oracle passages that were retrieved.
+    oracle_recall: float | None = None
+
+
 class ResponseInfo(_Strict):
     text: str | None
     finish_reason: str | None = None
@@ -80,6 +97,7 @@ class ResponseRecord(_Strict):
     data_provenance: DataProvenance
     model: ModelInfo
     prompt: PromptInfo
+    evidence: EvidenceSupplied = Field(default_factory=EvidenceSupplied)
     generation: GenerationParams
     response: ResponseInfo
     status: Literal["ok", "error"]
@@ -112,3 +130,5 @@ class RunManifest(_Strict):
     n_primary_eligible_items: int
     environment: dict[str, Any]
     command: list[str] | None = None
+    evidence_condition: Literal["baseline", "retrieved", "oracle"] = "baseline"
+    retriever: dict[str, Any] | None = None

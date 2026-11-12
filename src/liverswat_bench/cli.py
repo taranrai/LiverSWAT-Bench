@@ -135,6 +135,16 @@ def evaluate(
     limit: Annotated[
         int | None, typer.Option(min=1, help="Only evaluate the first N active items.")
     ] = None,
+    evidence_condition: Annotated[
+        str,
+        typer.Option(
+            help="baseline (question only), retrieved (lexical retrieval over the registry) "
+            "or oracle (the item's own cited passages)."
+        ),
+    ] = "baseline",
+    retrieval_top_k: Annotated[
+        int, typer.Option(min=1, help="Passages supplied in the retrieved condition.")
+    ] = 3,
 ) -> None:
     """Run a model on a benchmark dataset and store its responses as JSONL.
 
@@ -170,6 +180,8 @@ def evaluate(
             trials=trials,
             limit=limit,
             command=["liverswat", *sys.argv[1:]],
+            evidence_condition=evidence_condition,
+            retrieval_top_k=retrieval_top_k,
         )
     except (ConfigError, EvaluationError, AdapterError) as exc:
         typer.echo(f"error: {exc}", err=True)
@@ -179,6 +191,7 @@ def evaluate(
     for label in m.status_labels:
         typer.echo(f"*** {label} ***")
     typer.echo(f"Experiment:  {m.experiment_id}")
+    typer.echo(f"Evidence:    {m.evidence_condition}")
     typer.echo(
         f"Model:       {m.model_settings['model_name']} "
         f"(revision {m.model_settings['model_revision'] or 'n/a'}, "
