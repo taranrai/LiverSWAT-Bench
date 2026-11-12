@@ -9,7 +9,7 @@ separately; only the primary partition may be described as benchmark results.
 from __future__ import annotations
 
 from collections import Counter, defaultdict
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from statistics import fmean
 from typing import Any
@@ -23,6 +23,7 @@ from liverswat_bench.evaluation.scoring_records import (
     ScoringManifest,
 )
 from liverswat_bench.io import read_jsonl_models
+from liverswat_bench.judges.schema import JudgeRecord, JudgeRunManifest
 
 PARTITIONS = ("primary", "non_primary")
 
@@ -37,6 +38,8 @@ class ScoredRun:
     run_manifest: RunManifest
     scoring_manifest: ScoringManifest
     scores: list[ScoreRecord]
+    judgements: list[JudgeRecord] = field(default_factory=list)
+    judge_manifests: list[JudgeRunManifest] = field(default_factory=list)
 
 
 def load_scored_run(run_dir: Path) -> ScoredRun:
@@ -53,7 +56,26 @@ def load_scored_run(run_dir: Path) -> ScoredRun:
     records, issues = read_jsonl_models(scores_path, ScoreRecord)
     if issues:
         raise ReportError(f"invalid score records: {issues[0]}")
-    return ScoredRun(run_dir, run_manifest, scoring_manifest, [r for _, r in records])
+    judgements: list[JudgeRecord] = []
+    judge_manifests: list[JudgeRunManifest] = []
+    for path in sorted((run_dir / "judgements").glob("*.jsonl")):
+        js, j_issues = read_jsonl_models(path, JudgeRecord)
+        if j_issues:
+            raise ReportError(f"invalid judge records: {j_issues[0]}")
+        judgements.extend(j for _, j in js)
+        manifest_path = path.with_name(path.stem + ".manifest.json")
+        try:
+            judge_manifests.append(JudgeRunManifest.model_validate_json(manifest_path.read_text()))
+        except (OSError, ValueError) as exc:
+            raise ReportError(f"cannot read judge manifest {manifest_path}: {exc}") from exc
+    return ScoredRun(
+        run_dir,
+        run_manifest,
+        scoring_manifest,
+        [r for _, r in records],
+        judgements,
+        judge_manifests,
+    )
 
 
 def _case_mean(values_by_item: dict[str, list[float]]) -> tuple[float | None, int]:

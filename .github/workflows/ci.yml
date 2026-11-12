@@ -41,4 +41,8 @@ jobs:
           liverswat score --results results/ci-scripted-demo
           liverswat report --results results/ci-scripted-demo
           liverswat score --results results/ci-mock-pilot
+      - name: Judge, report and compare with mock judges (no GPU, no API)
+        run: |
+          liverswat judge --results results/ci-scripted-demo --judge mock-judge-a --judge mock-judge-b --judge mock-judge-broken --prompt-variant v1 --prompt-variant v1-alt --repeats 2
+          liverswat report --results results/ci-scripted-demo
           liverswat compare --results results

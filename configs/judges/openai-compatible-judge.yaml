@@ -1,0 +1,15 @@
+# EXAMPLE JUDGE CONFIG - any /v1/chat/completions server (local vLLM, llama.cpp, Ollama, or a
+# hosted provider). Put the API key in an environment variable and name it in api_key_env.
+# Set cost rates only from the provider's published prices; leave null if unknown.
+judge_id: openai-compatible-judge
+prompt_version: v1
+evidence_policy: verified_only
+max_retries: 2
+cost: {currency: null, input_per_1k_tokens: null, output_per_1k_tokens: null}
+model:
+  config_id: openai-compatible-judge
+  model_name: Qwen/Qwen2.5-7B-Instruct
+  backend: openai_compatible
+  licence: null
+  generation: {temperature: 0.0, top_p: 1.0, max_new_tokens: 2048, seed: 0}
+  backend_options: {base_url: "http://localhost:8000/v1", api_key_env: null, timeout_s: 300}

@@ -1,1 +1,4 @@
-"""LLM-as-judge adapters with structured output and abstention. Planned for Milestone 4."""
+"""LLM judges: configs, prompts, output validation, runner and oversight metrics.
+
+Judges are automated evaluators, not clinical experts. See docs/evaluation_protocol.md.
+"""

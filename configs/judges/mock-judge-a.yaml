@@ -1,0 +1,17 @@
+# MOCK JUDGE a: replays hand-written SYNTHETIC judge outputs from
+# data/examples/judge_scripts/mock_judge_a.jsonl (keyed on QUESTION_ID / PROMPT_VERSION).
+# For testing the judge pipeline only. Not a real model; never report as results.
+judge_id: mock-judge-a
+prompt_version: v1
+# Development only: all current evidence passages are unverified.
+evidence_policy: include_unverified
+max_retries: 2
+cost: {currency: null, input_per_1k_tokens: null, output_per_1k_tokens: null}
+model:
+  config_id: mock-judge-a
+  model_name: liverswat/mock-judge-a
+  backend: mock
+  licence: MIT (part of this repository)
+  generation: {temperature: 0.0, top_p: 1.0, max_new_tokens: 2048, seed: 0}
+  backend_options:
+    script_path: data/examples/judge_scripts/mock_judge_a.jsonl

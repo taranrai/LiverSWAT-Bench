@@ -5,8 +5,9 @@ An evidence-grounded AI safety benchmark for evaluating open-weight LLMs on UK l
 **Working title:** *LiverSWAT-Bench: Evaluating Safety, Truthfulness and Evidence Alignment of
 Open-Weight Language Models in UK Liver Health Advice*
 
-> **Status: pre-release (Milestone 3 of 8).** The repository contains the schema, validation
-> tooling, an evaluation harness, deterministic rule-based scoring and reporting, documentation, five **synthetic**
+> **Status: pre-release (Milestone 4 of 8).** The repository contains the schema, validation
+> tooling, an evaluation harness, deterministic rule-based scoring, LLM judges with
+> oversight measurements, reporting, documentation, five **synthetic**
 > demonstration cases and three pilot items whose evidence is **pending human verification**.
 > It does **not** yet contain any source-verified benchmark questions or any real model results.
 
@@ -57,6 +58,8 @@ liverswat evaluate --model configs/models/qwen2.5-0.5b-instruct-hf.yaml \
 # Score and report (scripted synthetic responses exercise every scoring outcome)
 liverswat evaluate --model mock-scripted --dataset data/examples/demo_items.jsonl --experiment-id demo
 liverswat score --results results/demo
+liverswat judge --results results/demo --judge mock-judge-a --judge mock-judge-b \
+                --prompt-variant v1 --prompt-variant v1-alt --repeats 2
 liverswat report --results results/demo     # results/demo/report/report.md
 liverswat compare --results results
 liverswat --help
@@ -69,13 +72,15 @@ liverswat --help
 | `liverswat score --results RUN_DIR` | Implemented: deterministic rule-based scoring |
 | `liverswat report --results RUN_DIR` | Implemented: JSON, CSV and Markdown report |
 | `liverswat compare --results DIR` | Implemented: descriptive comparison (paired statistics in Milestone 7) |
-| `liverswat judge --results PATH` | Planned (Milestone 4) |
+| `liverswat judge --results RUN_DIR --judge CONFIG` | Implemented: LLM judges (automated, not clinical experts) |
 
 Scores come from researcher-authored detection rules and are **not a clinical safety
 assessment**. Dimensions that cannot be scored by rule are recorded as abstained, never as
-zero. See [docs/evaluation_protocol.md](docs/evaluation_protocol.md).
+zero. LLM judges are recorded separately. A combined view fills only certain abstentions
+and never overrides a rule score; disagreements go to review. See
+[docs/evaluation_protocol.md](docs/evaluation_protocol.md).
 
-Commands that are not implemented yet exit with code 2 and say so. `validate` exits with code 1
+`validate` exits with code 1
 if it finds any problem.
 
 ### `liverswat evaluate`
@@ -106,7 +111,8 @@ outputs.
 
 ```
 configs/models/   model configs (mock + example Qwen configs: transformers, vLLM, OpenAI-compatible)
-configs/          experiment and judge configurations (later milestones)
+configs/judges/   judge configs (mock judges for testing; example HF and OpenAI-compatible)
+configs/          experiment configurations (later milestones)
 data/evidence/    UK evidence registry: sources.jsonl, passages.jsonl
 data/examples/    synthetic demonstration records (software testing only)
 data/pilot/       candidate items from verification pilots (source_pending)

@@ -1,0 +1,12 @@
+# MOCK BROKEN JUDGE: never returns valid JSON (placeholder text), to exercise
+# retries and abstention. For testing only.
+judge_id: mock-judge-broken
+prompt_version: v1
+evidence_policy: include_unverified
+max_retries: 2
+model:
+  config_id: mock-judge-broken
+  model_name: liverswat/mock-judge-broken
+  backend: mock
+  licence: MIT (part of this repository)
+  generation: {temperature: 0.0, top_p: 1.0, max_new_tokens: 2048, seed: 0}
