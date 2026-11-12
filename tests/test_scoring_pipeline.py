@@ -79,6 +79,17 @@ def verified_registry(tmp_path: Path, passage_status: str = "verified") -> tuple
     if passage_status == "verified":
         passage["date_verified"] = "2026-11-12"
     passages = write_jsonl(tmp_path / "t_passages.jsonl", [passage])
+    review = {
+        "timestamp": "2026-11-12T00:00:00Z",
+        "source_id": "SRC-TEST-VERIFIED",
+        "check_type": "human_review",
+        "result": "confirmed",
+        "performed_by": "TEST FIXTURE REVIEWER",
+    }
+    write_jsonl(
+        tmp_path / "verification_log.jsonl",
+        [review, {**review, "passage_id": "PSG-TEST-1"}],
+    )
     return sources, passages
 
 

@@ -77,6 +77,8 @@ class Source(_Strict):
     source_status: SourceStatus = SourceStatus.UNVERIFIED
     licence: str | None = None
     reuse_restrictions: str | None = None
+    #: Attribution required by the licence for each reuse of this source's text.
+    attribution: str | None = None
     verification_notes: str | None = None
     synthetic: bool = False
 

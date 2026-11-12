@@ -225,3 +225,5 @@ data/private/
 # Run outputs are reproducible from configs; keep only the README placeholder.
 results/*
 !results/README.md
+# Raw source snapshots (page copies); only hashes go in the verification log.
+data/evidence/snapshots/

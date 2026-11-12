@@ -6,7 +6,13 @@ from collections.abc import Iterable
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from liverswat_bench.evidence.schema import EvidencePassage, Source
+from liverswat_bench.evidence.schema import EvidencePassage, Source, SourceStatus
+from liverswat_bench.evidence.verification import (
+    LOG_FILENAME,
+    VerificationError,
+    human_confirmed,
+    read_log,
+)
 from liverswat_bench.io import ValidationIssue, read_jsonl_models
 
 
@@ -21,9 +27,14 @@ class EvidenceRegistry:
         source_files: Iterable[Path],
         passage_files: Iterable[Path],
     ) -> tuple[EvidenceRegistry, list[ValidationIssue]]:
-        """Load sources and passages, reporting schema and integrity problems."""
+        """Load sources and passages, reporting schema and integrity problems.
+
+        A ``verified`` source or passage must have a confirmed human review in the
+        ``verification_log.jsonl`` file next to its registry file.
+        """
         registry = cls()
         issues: list[ValidationIssue] = []
+        source_files, passage_files = list(source_files), list(passage_files)
 
         for path in source_files:
             records, file_issues = read_jsonl_models(path, Source)
@@ -68,4 +79,41 @@ class EvidenceRegistry:
                     )
                 registry.passages[passage.passage_id] = passage
 
+        issues.extend(_check_human_review(registry, source_files, passage_files))
         return registry, issues
+
+
+def _check_human_review(
+    registry: EvidenceRegistry, source_files: list[Path], passage_files: list[Path]
+) -> list[ValidationIssue]:
+    log_paths = sorted({p.parent / LOG_FILENAME for p in [*source_files, *passage_files]})
+    entries = []
+    issues: list[ValidationIssue] = []
+    for log in log_paths:
+        try:
+            entries.extend(read_log(log))
+        except VerificationError as exc:
+            issues.append(ValidationIssue(log, None, str(exc)))
+    confirmed_sources, confirmed_passages = human_confirmed(entries)
+    where = log_paths[0] if log_paths else Path(LOG_FILENAME)
+    for sid, source in registry.sources.items():
+        if source.source_status == SourceStatus.VERIFIED and sid not in confirmed_sources:
+            issues.append(
+                ValidationIssue(
+                    where,
+                    None,
+                    f"source {sid!r} is verified but has no confirmed human review in "
+                    f"{LOG_FILENAME}",
+                )
+            )
+    for pid, passage in registry.passages.items():
+        if passage.status == SourceStatus.VERIFIED and pid not in confirmed_passages:
+            issues.append(
+                ValidationIssue(
+                    where,
+                    None,
+                    f"passage {pid!r} is verified but has no confirmed human review in "
+                    f"{LOG_FILENAME}",
+                )
+            )
+    return issues

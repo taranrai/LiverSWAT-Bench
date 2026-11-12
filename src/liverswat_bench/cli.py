@@ -454,5 +454,170 @@ def check_docs(
         raise typer.Exit(EXIT_INVALID)
 
 
+evidence_app = typer.Typer(
+    help="Source-verification workflow: snapshots, machine text checks and human review log.",
+    no_args_is_help=True,
+)
+app.add_typer(evidence_app, name="evidence")
+
+
+def _registry(data_dir: Path):
+    from liverswat_bench.evidence.registry import EvidenceRegistry
+
+    if not data_dir.is_dir():
+        typer.echo(f"error: data directory not found: {data_dir}", err=True)
+        raise typer.Exit(EXIT_INVALID)
+    _, source_files, passage_files = discover_files(data_dir)
+    registry, _ = EvidenceRegistry.load(source_files, passage_files)
+    return registry, source_files
+
+
+def _log_path(data_dir: Path) -> Path:
+    from liverswat_bench.evidence.verification import LOG_FILENAME
+
+    return (
+        data_dir / "evidence" / LOG_FILENAME
+        if (data_dir / "evidence").is_dir()
+        else (data_dir / LOG_FILENAME)
+    )
+
+
+@evidence_app.command("snapshot")
+def evidence_snapshot(
+    out: Annotated[Path, typer.Option(help="Directory for snapshots (keep out of Git).")],
+    data_dir: Annotated[Path, typer.Option(help="Data directory with the registry.")] = Path(
+        "data"
+    ),
+    source_ids: Annotated[
+        list[str] | None, typer.Option("--source-id", help="Only these sources.")
+    ] = None,
+) -> None:
+    """Download the official URL of each non-synthetic source and extract its text.
+
+    Records the HTTP status, final URL, retrieval time and SHA-256 hash. This command
+    uses the network.
+    """
+    from liverswat_bench.evidence.verification import VerificationError, take_snapshot
+
+    registry, _ = _registry(data_dir)
+    failures = 0
+    for sid, source in sorted(registry.sources.items()):
+        if source.synthetic or not source.url or (source_ids and sid not in source_ids):
+            continue
+        try:
+            meta = take_snapshot(sid, str(source.url), out)
+            typer.echo(f"{sid}: HTTP {meta.http_status}, sha256 {meta.sha256[:12]}...")
+        except VerificationError as exc:
+            failures += 1
+            typer.echo(f"error: {exc}", err=True)
+    if failures:
+        raise typer.Exit(EXIT_INVALID)
+
+
+@evidence_app.command("check")
+def evidence_check(
+    snapshots: Annotated[Path, typer.Option(help="Snapshot directory from 'evidence snapshot'.")],
+    data_dir: Annotated[Path, typer.Option(help="Data directory with the registry.")] = Path(
+        "data"
+    ),
+    record: Annotated[
+        bool, typer.Option(help="Append the machine check results to the verification log.")
+    ] = False,
+) -> None:
+    """Check that each stored passage occurs verbatim in its source snapshot.
+
+    A match is a machine check only. It does not verify the passage. A human review
+    is required before any status can be set to verified.
+    """
+    from liverswat_bench.evidence.verification import append_log, load_snapshots, machine_check
+
+    registry, _ = _registry(data_dir)
+    if not snapshots.is_dir():
+        typer.echo(f"error: snapshot directory not found: {snapshots}", err=True)
+        raise typer.Exit(EXIT_INVALID)
+    entries = machine_check(registry, load_snapshots(snapshots))
+    for e in entries:
+        typer.echo(f"{e.passage_id}: {e.result}")
+    counts = {
+        r: sum(e.result == r for e in entries) for r in ("match", "no_match", "not_checkable")
+    }
+    typer.echo(
+        f"{counts['match']} match, {counts['no_match']} no_match, "
+        f"{counts['not_checkable']} not_checkable. Machine checks do not verify evidence."
+    )
+    if record and entries:
+        log = _log_path(data_dir)
+        append_log(log, entries)
+        typer.echo(f"Recorded {len(entries)} machine check(s) in {log}.")
+
+
+@evidence_app.command("record-review")
+def evidence_record_review(
+    source_id: Annotated[str, typer.Option(help="Source ID that was reviewed.")],
+    reviewer: Annotated[str, typer.Option(help="Name of the human reviewer.")],
+    result: Annotated[str, typer.Option(help="confirmed, rejected or needs_changes.")],
+    passage_id: Annotated[
+        str | None, typer.Option(help="Passage ID. Omit to record a source-level review.")
+    ] = None,
+    notes: Annotated[str | None, typer.Option(help="What was checked, and how.")] = None,
+    data_dir: Annotated[Path, typer.Option(help="Data directory with the registry.")] = Path(
+        "data"
+    ),
+) -> None:
+    """Append a human review to the verification log.
+
+    Run this command only after a person has checked the official source. Do not
+    record a review on the basis of a model statement.
+    """
+    from datetime import UTC, datetime
+
+    from pydantic import ValidationError
+
+    from liverswat_bench.evidence.verification import LogEntry, append_log
+
+    registry, _ = _registry(data_dir)
+    if source_id not in registry.sources:
+        typer.echo(f"error: unknown source ID {source_id!r}", err=True)
+        raise typer.Exit(EXIT_INVALID)
+    if passage_id and registry.passages.get(passage_id, None) is None:
+        typer.echo(f"error: unknown passage ID {passage_id!r}", err=True)
+        raise typer.Exit(EXIT_INVALID)
+    try:
+        entry = LogEntry(
+            timestamp=datetime.now(UTC),
+            source_id=source_id,
+            passage_id=passage_id,
+            check_type="human_review",
+            result=result,
+            performed_by=reviewer,
+            notes=notes,
+        )
+    except ValidationError as exc:
+        typer.echo(f"error: {exc.errors()[0]['msg']}", err=True)
+        raise typer.Exit(EXIT_INVALID) from exc
+    log = _log_path(data_dir)
+    append_log(log, [entry])
+    typer.echo(f"Recorded human review ({result}) for {passage_id or source_id} in {log}.")
+    typer.echo("Update the registry status separately, then run 'liverswat validate'.")
+
+
+@evidence_app.command("status")
+def evidence_status(
+    data_dir: Annotated[Path, typer.Option(help="Data directory with the registry.")] = Path(
+        "data"
+    ),
+) -> None:
+    """Show each passage's registry status, latest machine check and latest human review."""
+    from liverswat_bench.evidence.verification import read_log, summarise_status
+
+    registry, _ = _registry(data_dir)
+    rows = summarise_status(registry, read_log(_log_path(data_dir)))
+    for r in rows:
+        typer.echo(
+            f"{r['passage_id']}: status={r['status']} machine={r['machine_check']} "
+            f"human={r['human_review']}"
+        )
+
+
 if __name__ == "__main__":
     app()
