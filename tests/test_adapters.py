@@ -20,7 +20,7 @@ from liverswat_bench.models import (
     create_adapter,
 )
 from liverswat_bench.models.hf_transformers import TransformersAdapter
-from liverswat_bench.models.mock import MOCK_PREFIX, MockAdapter
+from liverswat_bench.models.mock import MOCK_PREFIX, SCRIPTED_PREFIX, MockAdapter
 from liverswat_bench.models.vllm_backend import VLLMAdapter
 
 SHA = "0123456789abcdef0123456789abcdef01234567"
@@ -287,3 +287,18 @@ def test_vllm_generation_logic():
     _, sampling = adapter.llm.calls[0]
     assert (sampling.seed, sampling.max_tokens, sampling.temperature) == (9, 50, 0.5)
     assert sampling.stop is None
+
+
+def test_mock_scripted_responses(tmp_path):
+    script = tmp_path / "script.jsonl"
+    script.write_text(json.dumps({"prompt_contains": "Hello", "response": "Scripted."}) + "\n")
+    adapter = MockAdapter(config(backend_options={"script_path": str(script)}))
+    hit = adapter.generate(MSGS, GenerationParams())
+    assert hit.text == f"{SCRIPTED_PREFIX}\nScripted."
+    miss = adapter.generate([{"role": "user", "content": "Other"}], GenerationParams())
+    assert miss.text.startswith(MOCK_PREFIX)
+
+
+def test_mock_bad_script_path(tmp_path):
+    with pytest.raises(AdapterError, match="cannot load mock script"):
+        MockAdapter(config(backend_options={"script_path": str(tmp_path / "missing.jsonl")}))

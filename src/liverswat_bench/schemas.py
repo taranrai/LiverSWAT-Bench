@@ -9,6 +9,7 @@ from pydantic import BaseModel
 
 from liverswat_bench.datasets.schema import BenchmarkItem
 from liverswat_bench.evaluation.records import ResponseRecord, RunManifest
+from liverswat_bench.evaluation.scoring_records import ScoreRecord, ScoringManifest
 from liverswat_bench.evidence.schema import EvidencePassage, Source
 
 SCHEMA_MODELS: dict[str, type[BaseModel]] = {
@@ -17,6 +18,8 @@ SCHEMA_MODELS: dict[str, type[BaseModel]] = {
     "evidence_passage.schema.json": EvidencePassage,
     "response_record.schema.json": ResponseRecord,
     "run_manifest.schema.json": RunManifest,
+    "score_record.schema.json": ScoreRecord,
+    "scoring_manifest.schema.json": ScoringManifest,
 }
 
 

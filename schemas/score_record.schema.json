@@ -1,0 +1,484 @@
+{
+  "$defs": {
+    "AggregateScore": {
+      "additionalProperties": false,
+      "properties": {
+        "applicable_weight": {
+          "title": "Applicable Weight",
+          "type": "number"
+        },
+        "score": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Score"
+        },
+        "scored_weight": {
+          "title": "Scored Weight",
+          "type": "number"
+        },
+        "status": {
+          "enum": [
+            "complete",
+            "incomplete",
+            "not_applicable"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "unscored_dimensions": {
+          "items": {
+            "$ref": "#/$defs/Dimension"
+          },
+          "title": "Unscored Dimensions",
+          "type": "array"
+        }
+      },
+      "required": [
+        "status",
+        "applicable_weight",
+        "scored_weight"
+      ],
+      "title": "AggregateScore",
+      "type": "object"
+    },
+    "Check": {
+      "additionalProperties": false,
+      "properties": {
+        "check_id": {
+          "title": "Check Id",
+          "type": "string"
+        },
+        "critical": {
+          "default": false,
+          "title": "Critical",
+          "type": "boolean"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "evidence_passage_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Passage Ids",
+          "type": "array"
+        },
+        "kind": {
+          "$ref": "#/$defs/CheckKind"
+        },
+        "outcome": {
+          "$ref": "#/$defs/CheckOutcome"
+        },
+        "response_excerpts": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Response Excerpts",
+          "type": "array"
+        },
+        "review_reasons": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Review Reasons",
+          "type": "array"
+        }
+      },
+      "required": [
+        "check_id",
+        "kind",
+        "description",
+        "outcome"
+      ],
+      "title": "Check",
+      "type": "object"
+    },
+    "CheckKind": {
+      "enum": [
+        "expected_claim",
+        "contradicted_claim",
+        "prohibited_claim",
+        "safety_requirement",
+        "uncertainty_requirement"
+      ],
+      "title": "CheckKind",
+      "type": "string"
+    },
+    "CheckOutcome": {
+      "enum": [
+        "present",
+        "absent",
+        "detected",
+        "not_detected",
+        "met",
+        "not_met",
+        "needs_review",
+        "no_rule"
+      ],
+      "title": "CheckOutcome",
+      "type": "string"
+    },
+    "ClaimAssessment": {
+      "additionalProperties": false,
+      "description": "A statement identified in the response, assessed against the item's evidence.",
+      "properties": {
+        "abstained": {
+          "title": "Abstained",
+          "type": "boolean"
+        },
+        "claim_id": {
+          "title": "Claim Id",
+          "type": "string"
+        },
+        "claim_text": {
+          "title": "Claim Text",
+          "type": "string"
+        },
+        "classification": {
+          "$ref": "#/$defs/ClaimClassification"
+        },
+        "evidence_passage_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Passage Ids",
+          "type": "array"
+        },
+        "explanation": {
+          "title": "Explanation",
+          "type": "string"
+        },
+        "method": {
+          "const": "deterministic_rule",
+          "default": "deterministic_rule",
+          "title": "Method",
+          "type": "string"
+        },
+        "needs_review": {
+          "title": "Needs Review",
+          "type": "boolean"
+        },
+        "response_excerpts": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Response Excerpts",
+          "type": "array"
+        }
+      },
+      "required": [
+        "claim_id",
+        "claim_text",
+        "evidence_passage_ids",
+        "classification",
+        "explanation",
+        "response_excerpts",
+        "abstained",
+        "needs_review"
+      ],
+      "title": "ClaimAssessment",
+      "type": "object"
+    },
+    "ClaimClassification": {
+      "enum": [
+        "supported",
+        "contradicted",
+        "unsupported",
+        "unverifiable"
+      ],
+      "title": "ClaimClassification",
+      "type": "string"
+    },
+    "CriticalFlag": {
+      "additionalProperties": false,
+      "properties": {
+        "check_id": {
+          "title": "Check Id",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "kind": {
+          "$ref": "#/$defs/CheckKind"
+        },
+        "response_excerpts": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Response Excerpts",
+          "type": "array"
+        },
+        "status": {
+          "enum": [
+            "rule_detected",
+            "needs_review"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "check_id",
+        "kind",
+        "description",
+        "status"
+      ],
+      "title": "CriticalFlag",
+      "type": "object"
+    },
+    "Dimension": {
+      "enum": [
+        "factual_accuracy",
+        "safety_behaviour",
+        "uk_evidence_alignment",
+        "actionability",
+        "communication_quality",
+        "uncertainty_handling"
+      ],
+      "title": "Dimension",
+      "type": "string"
+    },
+    "DimensionScore": {
+      "additionalProperties": false,
+      "properties": {
+        "check_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Check Ids",
+          "type": "array"
+        },
+        "dimension": {
+          "$ref": "#/$defs/Dimension"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        },
+        "rule": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rule"
+        },
+        "score": {
+          "anyOf": [
+            {
+              "maximum": 4,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Score"
+        },
+        "status": {
+          "$ref": "#/$defs/DimensionStatus"
+        }
+      },
+      "required": [
+        "dimension",
+        "status",
+        "reason"
+      ],
+      "title": "DimensionScore",
+      "type": "object"
+    },
+    "DimensionStatus": {
+      "enum": [
+        "scored",
+        "not_applicable",
+        "abstained",
+        "missing"
+      ],
+      "title": "DimensionStatus",
+      "type": "string"
+    },
+    "EvidenceLevel": {
+      "enum": [
+        "A",
+        "B",
+        "C"
+      ],
+      "title": "EvidenceLevel",
+      "type": "string"
+    },
+    "ScoringProvenance": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_level": {
+          "$ref": "#/$defs/EvidenceLevel"
+        },
+        "ineligibility_reasons": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Ineligibility Reasons",
+          "type": "array"
+        },
+        "primary_eligible": {
+          "title": "Primary Eligible",
+          "type": "boolean"
+        },
+        "synthetic": {
+          "title": "Synthetic",
+          "type": "boolean"
+        },
+        "track": {
+          "$ref": "#/$defs/Track"
+        },
+        "verification_status": {
+          "$ref": "#/$defs/VerificationStatus"
+        }
+      },
+      "required": [
+        "synthetic",
+        "track",
+        "verification_status",
+        "evidence_level",
+        "primary_eligible"
+      ],
+      "title": "ScoringProvenance",
+      "type": "object"
+    },
+    "Track": {
+      "description": "Which score an item may contribute to.",
+      "enum": [
+        "primary",
+        "exploratory",
+        "experimental",
+        "demo"
+      ],
+      "title": "Track",
+      "type": "string"
+    },
+    "VerificationStatus": {
+      "enum": [
+        "draft",
+        "source_pending",
+        "source_verified",
+        "disputed",
+        "expert_review_required",
+        "retired"
+      ],
+      "title": "VerificationStatus",
+      "type": "string"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "aggregate": {
+      "$ref": "#/$defs/AggregateScore"
+    },
+    "checks": {
+      "items": {
+        "$ref": "#/$defs/Check"
+      },
+      "title": "Checks",
+      "type": "array"
+    },
+    "claim_assessments": {
+      "items": {
+        "$ref": "#/$defs/ClaimAssessment"
+      },
+      "title": "Claim Assessments",
+      "type": "array"
+    },
+    "critical_flags": {
+      "items": {
+        "$ref": "#/$defs/CriticalFlag"
+      },
+      "title": "Critical Flags",
+      "type": "array"
+    },
+    "dimension_scores": {
+      "items": {
+        "$ref": "#/$defs/DimensionScore"
+      },
+      "title": "Dimension Scores",
+      "type": "array"
+    },
+    "experiment_id": {
+      "title": "Experiment Id",
+      "type": "string"
+    },
+    "note": {
+      "default": "Only statements covered by the item's detection rules were assessed; other content of the response is unassessed.",
+      "title": "Note",
+      "type": "string"
+    },
+    "provenance": {
+      "$ref": "#/$defs/ScoringProvenance"
+    },
+    "question_id": {
+      "title": "Question Id",
+      "type": "string"
+    },
+    "record_id": {
+      "title": "Record Id",
+      "type": "string"
+    },
+    "response_status": {
+      "enum": [
+        "ok",
+        "error"
+      ],
+      "title": "Response Status",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1",
+      "default": "1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "scorer": {
+      "title": "Scorer",
+      "type": "string"
+    },
+    "trial": {
+      "title": "Trial",
+      "type": "integer"
+    },
+    "unchecked_critical": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Unchecked Critical",
+      "type": "array"
+    }
+  },
+  "required": [
+    "record_id",
+    "experiment_id",
+    "question_id",
+    "trial",
+    "scorer",
+    "provenance",
+    "response_status",
+    "dimension_scores",
+    "aggregate"
+  ],
+  "title": "ScoreRecord",
+  "type": "object"
+}

@@ -5,11 +5,10 @@ An evidence-grounded AI safety benchmark for evaluating open-weight LLMs on UK l
 **Working title:** *LiverSWAT-Bench: Evaluating Safety, Truthfulness and Evidence Alignment of
 Open-Weight Language Models in UK Liver Health Advice*
 
-> **Status: pre-release (Milestone 2 of 8).** The repository contains the schema, validation
-> tooling, an evaluation harness that collects model responses, documentation, five **synthetic**
+> **Status: pre-release (Milestone 3 of 8).** The repository contains the schema, validation
+> tooling, an evaluation harness, deterministic rule-based scoring and reporting, documentation, five **synthetic**
 > demonstration cases and three pilot items whose evidence is **pending human verification**.
-> It does **not** yet contain any source-verified benchmark questions, any scoring or any model
-> results.
+> It does **not** yet contain any source-verified benchmark questions or any real model results.
 
 ## What this benchmark is, and is not
 
@@ -55,6 +54,11 @@ liverswat evaluate --model mock --dataset data/examples/demo_items.jsonl
 # A real model (needs: pip install -e ".[hf]"); pin the revision in the config first
 liverswat evaluate --model configs/models/qwen2.5-0.5b-instruct-hf.yaml \
                    --dataset data/pilot/uk_cmo_pilot_items.jsonl --trials 3
+# Score and report (scripted synthetic responses exercise every scoring outcome)
+liverswat evaluate --model mock-scripted --dataset data/examples/demo_items.jsonl --experiment-id demo
+liverswat score --results results/demo
+liverswat report --results results/demo     # results/demo/report/report.md
+liverswat compare --results results
 liverswat --help
 ```
 
@@ -62,9 +66,14 @@ liverswat --help
 | --- | --- |
 | `liverswat validate` | Implemented |
 | `liverswat evaluate --model MODEL --dataset PATH` | Implemented: collects responses, no scoring |
-| `liverswat report --results DIR` | Planned (Milestone 3) |
+| `liverswat score --results RUN_DIR` | Implemented: deterministic rule-based scoring |
+| `liverswat report --results RUN_DIR` | Implemented: JSON, CSV and Markdown report |
+| `liverswat compare --results DIR` | Implemented: descriptive comparison (paired statistics in Milestone 7) |
 | `liverswat judge --results PATH` | Planned (Milestone 4) |
-| `liverswat compare --results DIR` | Planned (Milestone 7) |
+
+Scores come from researcher-authored detection rules and are **not a clinical safety
+assessment**. Dimensions that cannot be scored by rule are recorded as abstained, never as
+zero. See [docs/evaluation_protocol.md](docs/evaluation_protocol.md).
 
 Commands that are not implemented yet exit with code 2 and say so. `validate` exits with code 1
 if it finds any problem.

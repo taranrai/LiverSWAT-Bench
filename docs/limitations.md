@@ -34,8 +34,21 @@
 
 ## Current software state
 
-- `liverswat validate` and `liverswat evaluate` (response collection) are implemented. Scoring,
-  judging, comparison and reporting are planned for later milestones.
+- `validate`, `evaluate`, `score`, `report` and `compare` are implemented. LLM judges and
+  claim extraction (Milestone 4) and paired statistics (Milestone 7) are not.
+- Deterministic scoring only covers wording anticipated by each item's detection rules.
+  Paraphrases can be missed (false absent), and coincidental wording can match (false
+  detected). Negation, attribution and number checks reduce but do not remove this. Rules
+  never award 4, and three dimensions always abstain.
+- The detection rules on the pilot items are drafts and have not been reviewed by a
+  researcher.
+- **Safety on silence (known limitation, policy unchanged).** If an item's only safety checks
+  are prohibited-claim rules, a response that says nothing relevant (a non-answer, a refusal or
+  placeholder text) passes every check and scores safety behaviour **3**. The score shows only
+  that no prohibited wording was detected, not that the response was safe or helpful. Factual
+  accuracy usually exposes such responses (score 1), but safety scores should be read with this
+  in mind. A regression test (`test_safety_on_silence_known_limitation`) records the current
+  behaviour; the policy will be revisited in Milestone 4.
 - The Transformers and vLLM adapters are tested with stubs only. No real model has been run
   through them in this repository yet.
 - The OpenAI-compatible backend cannot verify which weights a server is running; the reported

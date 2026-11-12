@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "dataset_path": {
+      "title": "Dataset Path",
+      "type": "string"
+    },
+    "dataset_sha256": {
+      "title": "Dataset Sha256",
+      "type": "string"
+    },
+    "experiment_id": {
+      "title": "Experiment Id",
+      "type": "string"
+    },
+    "n_primary_eligible_records": {
+      "title": "N Primary Eligible Records",
+      "type": "integer"
+    },
+    "n_records": {
+      "title": "N Records",
+      "type": "integer"
+    },
+    "registry_files": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Registry Files",
+      "type": "object"
+    },
+    "responses_sha256": {
+      "title": "Responses Sha256",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1",
+      "default": "1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "scored_at": {
+      "format": "date-time",
+      "title": "Scored At",
+      "type": "string"
+    },
+    "scorer": {
+      "title": "Scorer",
+      "type": "string"
+    },
+    "status_labels": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Status Labels",
+      "type": "array"
+    }
+  },
+  "required": [
+    "experiment_id",
+    "scorer",
+    "scored_at",
+    "status_labels",
+    "responses_sha256",
+    "dataset_path",
+    "dataset_sha256",
+    "registry_files",
+    "n_records",
+    "n_primary_eligible_records"
+  ],
+  "title": "ScoringManifest",
+  "type": "object"
+}

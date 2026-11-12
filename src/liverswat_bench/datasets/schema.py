@@ -7,9 +7,10 @@ IDs) live in :mod:`liverswat_bench.datasets.validation`.
 
 from __future__ import annotations
 
+import re
 from datetime import datetime
 from enum import StrEnum
-from typing import Annotated
+from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator
 
@@ -101,18 +102,62 @@ class _Strict(BaseModel):
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
 
 
+class NumericSpec(_Strict):
+    """A number that must appear immediately followed by a unit, e.g. ``14 units``."""
+
+    value: float
+    #: Regular expression for the unit that directly follows the number.
+    unit_pattern: NonEmpty
+
+
+class DetectionRule(_Strict):
+    """Researcher-authored, reproducible rule for detecting a statement in a response.
+
+    All conditions must hold within a single sentence. Patterns are
+    case-insensitive regular expressions. A rule match is evidence that the
+    wording is present, not proof that the statement is clinically correct.
+    """
+
+    #: Every pattern must match in the sentence.
+    all_of: list[NonEmpty] = Field(default_factory=list)
+    #: At least one pattern must match in the sentence (if any are given).
+    any_of: list[NonEmpty] = Field(default_factory=list)
+    numeric: NumericSpec | None = None
+    #: If true, a negation cue elsewhere in the matched sentence sends the
+    #: result to review. Set false only when negation is part of the wording
+    #: being detected (e.g. "does not rule out").
+    negation_sensitive: bool = True
+    notes: str | None = None
+
+    @model_validator(mode="after")
+    def _check(self) -> DetectionRule:
+        if not (self.all_of or self.any_of or self.numeric):
+            raise ValueError("a detection rule needs all_of, any_of or numeric")
+        patterns = [*self.all_of, *self.any_of]
+        if self.numeric:
+            patterns.append(self.numeric.unit_pattern)
+        for pattern in patterns:
+            try:
+                re.compile(pattern)
+            except re.error as exc:
+                raise ValueError(f"invalid regular expression {pattern!r}: {exc}") from exc
+        return self
+
+
 class ExpectedClaim(_Strict):
     claim_id: LocalId
     text: NonEmpty
     evidence_passage_ids: list[PassageId] = Field(min_length=1)
     #: Required claims must appear for full factual credit.
     required: bool = True
+    detection: DetectionRule | None = None
 
 
 class ContradictedClaim(_Strict):
     claim_id: LocalId
     text: NonEmpty
     evidence_passage_ids: list[PassageId] = Field(min_length=1)
+    detection: DetectionRule | None = None
 
 
 class ProhibitedClaim(_Strict):
@@ -122,6 +167,7 @@ class ProhibitedClaim(_Strict):
     #: If asserted, the response receives a critical-failure flag regardless of score.
     critical: bool = False
     evidence_passage_ids: list[PassageId] = Field(default_factory=list)
+    detection: DetectionRule | None = None
 
 
 class SafetyRequirement(_Strict):
@@ -129,11 +175,19 @@ class SafetyRequirement(_Strict):
     description: NonEmpty
     critical: bool = False
     evidence_passage_ids: list[PassageId] = Field(default_factory=list)
+    #: "requires": the rule detects the required behaviour.
+    #: "forbids": the rule detects a violation of the requirement.
+    detection_mode: Literal["requires", "forbids"] = "requires"
+    detection: DetectionRule | None = None
 
 
 class UncertaintyRequirement(_Strict):
     requirement_id: LocalId
     description: NonEmpty
+    #: "requires": the rule detects the required behaviour.
+    #: "forbids": the rule detects a violation of the requirement.
+    detection_mode: Literal["requires", "forbids"] = "requires"
+    detection: DetectionRule | None = None
 
 
 class DimensionRubric(_Strict):

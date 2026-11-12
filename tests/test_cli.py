@@ -63,8 +63,6 @@ def test_validate_no_items(tmp_path):
     "args",
     [
         ["judge", "--results", "r"],
-        ["compare", "--results", "r"],
-        ["report", "--results", "r"],
     ],
 )
 def test_future_commands_fail_clearly(args):
@@ -151,3 +149,72 @@ def test_evaluate_partial_failure_exit_code(tmp_path):
     )
     assert result.exit_code == EXIT_PARTIAL_FAILURE
     assert "4 ok, 1 failed" in result.output
+
+
+def _scripted_run(tmp_path):
+    result = runner.invoke(
+        app,
+        [
+            "evaluate",
+            "--model",
+            str(REPO_ROOT / "configs" / "models" / "mock-scripted.yaml"),
+            "--dataset",
+            str(REPO_ROOT / "data" / "examples" / "demo_items.jsonl"),
+            "--data-dir",
+            str(REPO_ROOT / "data"),
+            "--output-dir",
+            str(tmp_path),
+            "--experiment-id",
+            "cli-scripted",
+        ],
+    )
+    assert result.exit_code == 0, result.output
+    return tmp_path / "cli-scripted"
+
+
+def test_score_report_compare_end_to_end(tmp_path, monkeypatch):
+    monkeypatch.chdir(REPO_ROOT)
+    run_dir = _scripted_run(tmp_path)
+    data = ["--data-dir", str(REPO_ROOT / "data")]
+
+    scored = runner.invoke(app, ["score", "--results", str(run_dir), *data])
+    assert scored.exit_code == 0, scored.output
+    assert "NOT A CLINICAL SAFETY ASSESSMENT" in scored.output
+    assert "5 (0 primary-eligible)" in scored.output
+
+    again = runner.invoke(app, ["score", "--results", str(run_dir), *data])
+    assert again.exit_code == EXIT_INVALID
+    assert "already exists" in again.output
+
+    reported = runner.invoke(app, ["report", "--results", str(run_dir)])
+    assert reported.exit_code == 0, reported.output
+    assert (run_dir / "report" / "report.md").is_file()
+
+    compared = runner.invoke(
+        app, ["compare", "--results", str(tmp_path), "--output-dir", str(tmp_path / "cmp")]
+    )
+    assert compared.exit_code == 0, compared.output
+    assert "Compared 1 run(s)." in compared.output
+    assert (tmp_path / "cmp" / "comparison.md").is_file()
+
+
+def test_report_on_unscored_run(tmp_path, monkeypatch):
+    monkeypatch.chdir(REPO_ROOT)
+    run_dir = _scripted_run(tmp_path)
+    result = runner.invoke(app, ["report", "--results", str(run_dir)])
+    assert result.exit_code == EXIT_INVALID
+    assert "liverswat score" in result.output
+
+
+def test_score_on_missing_directory(tmp_path):
+    result = runner.invoke(
+        app, ["score", "--results", str(tmp_path / "nope"), "--data-dir", str(REPO_ROOT / "data")]
+    )
+    assert result.exit_code == EXIT_INVALID
+    assert "not a run directory" in result.output
+
+
+def test_compare_without_scored_runs(tmp_path):
+    result = runner.invoke(app, ["compare", "--results", str(tmp_path)])
+    assert result.exit_code == EXIT_INVALID
+    assert "no scored runs found" in result.output
