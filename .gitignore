@@ -218,3 +218,10 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# --- LiverSWAT-Bench ---
+# Private holdout data must never be committed.
+data/private/
+# Run outputs are reproducible from configs; keep only the README placeholder.
+results/*
+!results/README.md

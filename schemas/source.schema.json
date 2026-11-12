@@ -1,0 +1,206 @@
+{
+  "$defs": {
+    "EvidenceConfidence": {
+      "enum": [
+        "high",
+        "moderate",
+        "low"
+      ],
+      "title": "EvidenceConfidence",
+      "type": "string"
+    },
+    "Organisation": {
+      "enum": [
+        "NICE",
+        "NHS",
+        "BSG",
+        "BASL",
+        "British Liver Trust",
+        "UKHSA",
+        "UK Chief Medical Officers",
+        "SYNTHETIC_DEMO"
+      ],
+      "title": "Organisation",
+      "type": "string"
+    },
+    "SourceStatus": {
+      "enum": [
+        "unverified",
+        "verified",
+        "needs_reverification",
+        "superseded",
+        "withdrawn"
+      ],
+      "title": "SourceStatus",
+      "type": "string"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "A single authoritative document in the evidence registry.",
+  "properties": {
+    "conditions": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Conditions",
+      "type": "array"
+    },
+    "date_accessed": {
+      "anyOf": [
+        {
+          "format": "date",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Date Accessed"
+    },
+    "evidence_confidence": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/EvidenceConfidence"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "guideline_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Guideline Id"
+    },
+    "last_updated_date": {
+      "anyOf": [
+        {
+          "format": "date",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Last Updated Date"
+    },
+    "licence": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Licence"
+    },
+    "organisation": {
+      "$ref": "#/$defs/Organisation"
+    },
+    "populations": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Populations",
+      "type": "array"
+    },
+    "publication_date": {
+      "anyOf": [
+        {
+          "format": "date",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Publication Date"
+    },
+    "relevant_sections": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Relevant Sections",
+      "type": "array"
+    },
+    "reuse_restrictions": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Reuse Restrictions"
+    },
+    "source_id": {
+      "pattern": "^SRC-[A-Z0-9]+(-[A-Z0-9]+)*$",
+      "title": "Source Id",
+      "type": "string"
+    },
+    "source_status": {
+      "$ref": "#/$defs/SourceStatus",
+      "default": "unverified"
+    },
+    "synthetic": {
+      "default": false,
+      "title": "Synthetic",
+      "type": "boolean"
+    },
+    "title": {
+      "minLength": 1,
+      "title": "Title",
+      "type": "string"
+    },
+    "url": {
+      "anyOf": [
+        {
+          "format": "uri",
+          "maxLength": 2083,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Url"
+    },
+    "verification_notes": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Verification Notes"
+    }
+  },
+  "required": [
+    "source_id",
+    "organisation",
+    "title"
+  ],
+  "title": "Source",
+  "type": "object"
+}

@@ -1,0 +1,473 @@
+{
+  "$defs": {
+    "Audience": {
+      "enum": [
+        "general_public",
+        "patient",
+        "carer"
+      ],
+      "title": "Audience",
+      "type": "string"
+    },
+    "ContradictedClaim": {
+      "additionalProperties": false,
+      "properties": {
+        "claim_id": {
+          "pattern": "^[A-Za-z0-9_.-]+$",
+          "title": "Claim Id",
+          "type": "string"
+        },
+        "evidence_passage_ids": {
+          "items": {
+            "pattern": "^PSG-[A-Z0-9]+(-[A-Z0-9]+)*$",
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Evidence Passage Ids",
+          "type": "array"
+        },
+        "text": {
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "claim_id",
+        "text",
+        "evidence_passage_ids"
+      ],
+      "title": "ContradictedClaim",
+      "type": "object"
+    },
+    "Difficulty": {
+      "enum": [
+        "basic",
+        "intermediate",
+        "advanced"
+      ],
+      "title": "Difficulty",
+      "type": "string"
+    },
+    "Dimension": {
+      "enum": [
+        "factual_accuracy",
+        "safety_behaviour",
+        "uk_evidence_alignment",
+        "actionability",
+        "communication_quality",
+        "uncertainty_handling"
+      ],
+      "title": "Dimension",
+      "type": "string"
+    },
+    "DimensionRubric": {
+      "additionalProperties": false,
+      "properties": {
+        "anchors": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Anchors"
+        },
+        "applicable": {
+          "default": true,
+          "title": "Applicable",
+          "type": "boolean"
+        },
+        "dimension": {
+          "$ref": "#/$defs/Dimension"
+        },
+        "notes": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Notes"
+        }
+      },
+      "required": [
+        "dimension"
+      ],
+      "title": "DimensionRubric",
+      "type": "object"
+    },
+    "EvidenceLevel": {
+      "enum": [
+        "A",
+        "B",
+        "C"
+      ],
+      "title": "EvidenceLevel",
+      "type": "string"
+    },
+    "ExpectedClaim": {
+      "additionalProperties": false,
+      "properties": {
+        "claim_id": {
+          "pattern": "^[A-Za-z0-9_.-]+$",
+          "title": "Claim Id",
+          "type": "string"
+        },
+        "evidence_passage_ids": {
+          "items": {
+            "pattern": "^PSG-[A-Z0-9]+(-[A-Z0-9]+)*$",
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Evidence Passage Ids",
+          "type": "array"
+        },
+        "required": {
+          "default": true,
+          "title": "Required",
+          "type": "boolean"
+        },
+        "text": {
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "claim_id",
+        "text",
+        "evidence_passage_ids"
+      ],
+      "title": "ExpectedClaim",
+      "type": "object"
+    },
+    "ProhibitedClaim": {
+      "additionalProperties": false,
+      "properties": {
+        "claim_id": {
+          "pattern": "^[A-Za-z0-9_.-]+$",
+          "title": "Claim Id",
+          "type": "string"
+        },
+        "critical": {
+          "default": false,
+          "title": "Critical",
+          "type": "boolean"
+        },
+        "evidence_passage_ids": {
+          "items": {
+            "pattern": "^PSG-[A-Z0-9]+(-[A-Z0-9]+)*$",
+            "type": "string"
+          },
+          "title": "Evidence Passage Ids",
+          "type": "array"
+        },
+        "rationale": {
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        },
+        "text": {
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "claim_id",
+        "text",
+        "rationale"
+      ],
+      "title": "ProhibitedClaim",
+      "type": "object"
+    },
+    "PromptType": {
+      "enum": [
+        "direct_question",
+        "scenario",
+        "misinformation",
+        "false_reassurance",
+        "diagnostic_certainty",
+        "incomplete_information",
+        "adversarial",
+        "conflicting_evidence",
+        "uncertainty",
+        "evidence_manipulation",
+        "unsafe_advice_request"
+      ],
+      "title": "PromptType",
+      "type": "string"
+    },
+    "RiskLevel": {
+      "enum": [
+        "low",
+        "moderate",
+        "high"
+      ],
+      "title": "RiskLevel",
+      "type": "string"
+    },
+    "SafetyRequirement": {
+      "additionalProperties": false,
+      "properties": {
+        "critical": {
+          "default": false,
+          "title": "Critical",
+          "type": "boolean"
+        },
+        "description": {
+          "minLength": 1,
+          "title": "Description",
+          "type": "string"
+        },
+        "evidence_passage_ids": {
+          "items": {
+            "pattern": "^PSG-[A-Z0-9]+(-[A-Z0-9]+)*$",
+            "type": "string"
+          },
+          "title": "Evidence Passage Ids",
+          "type": "array"
+        },
+        "requirement_id": {
+          "pattern": "^[A-Za-z0-9_.-]+$",
+          "title": "Requirement Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "requirement_id",
+        "description"
+      ],
+      "title": "SafetyRequirement",
+      "type": "object"
+    },
+    "Topic": {
+      "enum": [
+        "awareness_prevention",
+        "alcohol",
+        "masld_lifestyle",
+        "viral_hepatitis",
+        "liver_tests_investigations",
+        "nhs_navigation"
+      ],
+      "title": "Topic",
+      "type": "string"
+    },
+    "Track": {
+      "description": "Which score an item may contribute to.",
+      "enum": [
+        "primary",
+        "exploratory",
+        "experimental",
+        "demo"
+      ],
+      "title": "Track",
+      "type": "string"
+    },
+    "UncertaintyRequirement": {
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "minLength": 1,
+          "title": "Description",
+          "type": "string"
+        },
+        "requirement_id": {
+          "pattern": "^[A-Za-z0-9_.-]+$",
+          "title": "Requirement Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "requirement_id",
+        "description"
+      ],
+      "title": "UncertaintyRequirement",
+      "type": "object"
+    },
+    "VerificationStatus": {
+      "enum": [
+        "draft",
+        "source_pending",
+        "source_verified",
+        "disputed",
+        "expert_review_required",
+        "retired"
+      ],
+      "title": "VerificationStatus",
+      "type": "string"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "acceptable_variations": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "title": "Acceptable Variations",
+      "type": "array"
+    },
+    "benchmark_version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "title": "Benchmark Version",
+      "type": "string"
+    },
+    "contradicted_claims": {
+      "items": {
+        "$ref": "#/$defs/ContradictedClaim"
+      },
+      "title": "Contradicted Claims",
+      "type": "array"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "difficulty": {
+      "$ref": "#/$defs/Difficulty"
+    },
+    "evidence_level": {
+      "$ref": "#/$defs/EvidenceLevel"
+    },
+    "evidence_passage_ids": {
+      "items": {
+        "pattern": "^PSG-[A-Z0-9]+(-[A-Z0-9]+)*$",
+        "type": "string"
+      },
+      "title": "Evidence Passage Ids",
+      "type": "array"
+    },
+    "expected_claims": {
+      "items": {
+        "$ref": "#/$defs/ExpectedClaim"
+      },
+      "title": "Expected Claims",
+      "type": "array"
+    },
+    "intended_audience": {
+      "$ref": "#/$defs/Audience"
+    },
+    "prohibited_claims": {
+      "items": {
+        "$ref": "#/$defs/ProhibitedClaim"
+      },
+      "title": "Prohibited Claims",
+      "type": "array"
+    },
+    "prompt_type": {
+      "$ref": "#/$defs/PromptType"
+    },
+    "question": {
+      "minLength": 1,
+      "title": "Question",
+      "type": "string"
+    },
+    "question_id": {
+      "pattern": "^[A-Z][A-Z0-9]*(-[A-Z0-9]+)+$",
+      "title": "Question Id",
+      "type": "string"
+    },
+    "reviewer_notes": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Reviewer Notes"
+    },
+    "risk_level": {
+      "$ref": "#/$defs/RiskLevel"
+    },
+    "safety_requirements": {
+      "items": {
+        "$ref": "#/$defs/SafetyRequirement"
+      },
+      "title": "Safety Requirements",
+      "type": "array"
+    },
+    "scoring_rubric": {
+      "items": {
+        "$ref": "#/$defs/DimensionRubric"
+      },
+      "minItems": 1,
+      "title": "Scoring Rubric",
+      "type": "array"
+    },
+    "source_ids": {
+      "items": {
+        "pattern": "^SRC-[A-Z0-9]+(-[A-Z0-9]+)*$",
+        "type": "string"
+      },
+      "title": "Source Ids",
+      "type": "array"
+    },
+    "subtopic": {
+      "minLength": 1,
+      "title": "Subtopic",
+      "type": "string"
+    },
+    "synthetic": {
+      "title": "Synthetic",
+      "type": "boolean"
+    },
+    "topic": {
+      "$ref": "#/$defs/Topic"
+    },
+    "track": {
+      "$ref": "#/$defs/Track"
+    },
+    "uncertainty_requirements": {
+      "items": {
+        "$ref": "#/$defs/UncertaintyRequirement"
+      },
+      "title": "Uncertainty Requirements",
+      "type": "array"
+    },
+    "updated_at": {
+      "format": "date-time",
+      "title": "Updated At",
+      "type": "string"
+    },
+    "verification_status": {
+      "$ref": "#/$defs/VerificationStatus"
+    }
+  },
+  "required": [
+    "question_id",
+    "benchmark_version",
+    "topic",
+    "subtopic",
+    "question",
+    "intended_audience",
+    "prompt_type",
+    "difficulty",
+    "evidence_level",
+    "verification_status",
+    "track",
+    "synthetic",
+    "scoring_rubric",
+    "risk_level",
+    "created_at",
+    "updated_at"
+  ],
+  "title": "BenchmarkItem",
+  "type": "object"
+}

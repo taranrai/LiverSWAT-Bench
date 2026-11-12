@@ -1,0 +1,129 @@
+{
+  "$defs": {
+    "EvidenceConfidence": {
+      "enum": [
+        "high",
+        "moderate",
+        "low"
+      ],
+      "title": "EvidenceConfidence",
+      "type": "string"
+    },
+    "PassageTextType": {
+      "enum": [
+        "verbatim",
+        "paraphrase",
+        "locator_only"
+      ],
+      "title": "PassageTextType",
+      "type": "string"
+    },
+    "SourceStatus": {
+      "enum": [
+        "unverified",
+        "verified",
+        "needs_reverification",
+        "superseded",
+        "withdrawn"
+      ],
+      "title": "SourceStatus",
+      "type": "string"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "A specific, locatable piece of a source that a benchmark item relies on.",
+  "properties": {
+    "conditions": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Conditions",
+      "type": "array"
+    },
+    "date_verified": {
+      "anyOf": [
+        {
+          "format": "date",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Date Verified"
+    },
+    "evidence_confidence": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/EvidenceConfidence"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "locator": {
+      "minLength": 1,
+      "title": "Locator",
+      "type": "string"
+    },
+    "passage_id": {
+      "pattern": "^PSG-[A-Z0-9]+(-[A-Z0-9]+)*$",
+      "title": "Passage Id",
+      "type": "string"
+    },
+    "populations": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Populations",
+      "type": "array"
+    },
+    "section": {
+      "minLength": 1,
+      "title": "Section",
+      "type": "string"
+    },
+    "source_id": {
+      "pattern": "^SRC-[A-Z0-9]+(-[A-Z0-9]+)*$",
+      "title": "Source Id",
+      "type": "string"
+    },
+    "status": {
+      "$ref": "#/$defs/SourceStatus",
+      "default": "unverified"
+    },
+    "synthetic": {
+      "default": false,
+      "title": "Synthetic",
+      "type": "boolean"
+    },
+    "text": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Text"
+    },
+    "text_type": {
+      "$ref": "#/$defs/PassageTextType"
+    }
+  },
+  "required": [
+    "passage_id",
+    "source_id",
+    "section",
+    "locator",
+    "text_type"
+  ],
+  "title": "EvidencePassage",
+  "type": "object"
+}
