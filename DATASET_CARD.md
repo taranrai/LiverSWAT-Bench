@@ -63,3 +63,5 @@ into future training data. Items contain no patient data.
 Benchmark code and original annotations: MIT. Quoted or paraphrased guidance remains subject to
 each publisher's terms, recorded per source in `licence` and `reuse_restrictions`. Those terms
 must be confirmed before release.
+
+**NHS content attribution.** Information from the NHS website is licensed under the Open Government Licence v3.0 (https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/). NHS extracts are "Information from the NHS website, as at 121126".

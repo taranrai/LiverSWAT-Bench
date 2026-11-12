@@ -154,6 +154,10 @@ See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Licence and citation
 
+> **NHS content attribution.** Information from the NHS website is licensed under the Open Government Licence v3.0 (https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/). Each NHS extract in
+> `data/evidence/passages.jsonl` is "Information from the NHS website, as at 121126"
+> (12 November 2026) and is not refreshed automatically.
+
 Code is released under the MIT licence ([LICENSE](LICENSE)). Third-party guidance quoted in the
 evidence registry remains subject to its publisher's terms; see each source's `licence` and
 `reuse_restrictions` fields. Citation metadata is in [CITATION.cff](CITATION.cff).
