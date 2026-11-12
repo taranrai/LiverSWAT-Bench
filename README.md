@@ -11,6 +11,9 @@ Open-Weight Language Models in UK Liver Health Advice*
 >   Medical Officers pilot benchmark items. All 15 are `source_pending`: no human review yet.
 > - The real-model pilot results in `results/m5-real-model-pilot/` are experimental results. They
 >   are not primary benchmark results. See [docs/real-model-pilot.md](docs/real-model-pilot.md).
+> - The real-model pilot judge stage is incomplete (84 of 168 judge results). The remaining steps
+>   move to a private Hugging Face Space. See
+>   [docs/hf-space-judge-migration.md](docs/hf-space-judge-migration.md).
 > - The five demo benchmark items are synthetic. They exist for software tests only.
 
 Documentation follows ASD-STE100 Simplified Technical English principles. Formal compliance has
@@ -44,7 +47,8 @@ python -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
 ```
 
-Optional extras: `analysis` (pandas/NumPy/SciPy), `hf` (Transformers/Datasets), `vllm`.
+Optional extras: `analysis` (pandas/NumPy/SciPy), `hf` (Transformers/Datasets), `vllm`, `space`
+(Hugging Face Hub client for the Space judge runner).
 
 ## Usage
 

@@ -116,3 +116,16 @@ not been certified.
 
 - The pilot has 12 benchmark items. Rates have wide uncertainty. The pilot does not report
   confidence intervals or statistical tests (planned for Milestone 7).
+
+### Judge stage migration
+
+- The judge stage is incomplete: 84 of 168 planned judge results. Judge results for
+  `qwen2.5-7b` are not executed yet.
+- The remaining judge steps will run on a different host: a graphics processing unit (GPU) on a
+  Hugging Face Space. The completed steps ran on an Apple M4 Pro laptop. Temperature 0 does not
+  guarantee identical output on different hardware. A comparison of the two evaluated models can include a hardware effect.
+  Each judge manifest records its host.
+- The Space configuration was not built or run in Milestone 5. The synchronisation code has unit
+  tests with a fake client only.
+- `mistral-nemo` gave `invalid_output` for 4 of its 48 completed judge results (prompt `v2`: 4 of
+  36; prompt `v2-alt`: 0 of 12). `phi4` gave `invalid_output` for 0 of 36.
