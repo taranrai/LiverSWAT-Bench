@@ -467,6 +467,56 @@ def check_docs(
         raise typer.Exit(EXIT_INVALID)
 
 
+@app.command()
+def pilot(
+    config: Annotated[Path, typer.Option("--config", help="Pilot configuration YAML file.")],
+    summarise_only: Annotated[
+        bool, typer.Option(help="Rebuild the pilot summary from existing run outputs only.")
+    ] = False,
+) -> None:
+    """Run a pilot: models x evidence conditions, then score, judge, report and summarise.
+
+    Steps with existing outputs are skipped, so an interrupted pilot can resume. Real
+    model backends run real inference. Check the configuration before you run it.
+    """
+    from liverswat_bench.evaluation.combine import CombineSettings
+    from liverswat_bench.experiments.pilot import (
+        load_pilot_config,
+        render_pilot_markdown,
+        run_dir_name,
+        run_pilot,
+        summarise_pilot,
+    )
+    from liverswat_bench.models import AdapterError, ConfigError
+    from liverswat_bench.models.config import load_model_config
+
+    try:
+        cfg = load_pilot_config(config)
+    except (OSError, ValueError) as exc:
+        typer.echo(f"error: invalid pilot configuration {config}: {exc}", err=True)
+        raise typer.Exit(EXIT_INVALID) from exc
+    _, source_files, passage_files = discover_files(cfg.data_dir)
+    try:
+        if summarise_only:
+            run_dirs = [
+                cfg.output_dir / run_dir_name(load_model_config(m).config_id, c)
+                for m in cfg.models
+                for c in cfg.conditions
+            ]
+            settings = CombineSettings(policy=cfg.combine_policy, min_judges=cfg.min_judges)
+            summary = summarise_pilot(cfg, run_dirs, settings)
+            import json
+
+            (cfg.output_dir / "pilot_summary.json").write_text(json.dumps(summary, indent=2) + "\n")
+            (cfg.output_dir / "pilot_summary.md").write_text(render_pilot_markdown(summary))
+            typer.echo(f"Summary: {cfg.output_dir / 'pilot_summary.md'}")
+            return
+        run_pilot(cfg, source_files=source_files, passage_files=passage_files, log=typer.echo)
+    except (ConfigError, AdapterError, RuntimeError, OSError) as exc:
+        typer.echo(f"error: {exc}", err=True)
+        raise typer.Exit(EXIT_INVALID) from exc
+
+
 evidence_app = typer.Typer(
     help="Source-verification workflow: snapshots, machine text checks and human review log.",
     no_args_is_help=True,

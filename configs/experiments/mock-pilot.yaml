@@ -1,0 +1,15 @@
+# MOCK PILOT: exercises the pilot pipeline with mock models and mock judges.
+# Results are software test results, not model results.
+pilot_id: mock-pilot
+description: Mock pipeline check on the synthetic demo items (no real inference).
+result_label: MOCK TEST RESULTS - SYNTHETIC DATA, NOT MODEL RESULTS
+dataset: data/examples/demo_items.jsonl
+output_dir: results/mock-pilot
+models: [configs/models/mock-scripted.yaml]
+conditions: [baseline, retrieved, oracle]
+retrieval_top_k: 2
+judges: [configs/judges/mock-judge-a.yaml, configs/judges/mock-judge-b.yaml]
+prompt_sensitivity:
+  judges: [configs/judges/mock-judge-a.yaml]
+  prompt_variants: [v1-alt]
+  conditions: [baseline]

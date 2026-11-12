@@ -33,7 +33,9 @@ from liverswat_bench.evaluation.conditions import (
 )
 from liverswat_bench.evaluation.environment import capture_environment, sha256_file
 from liverswat_bench.evaluation.records import (
+    MOCK_LABEL,
     NOT_CLINICAL_LABEL,
+    REAL_LABEL,
     SYNTHETIC_LABEL,
     UNVERIFIED_LABEL,
     DataProvenance,
@@ -73,12 +75,14 @@ def is_primary_eligible(item: BenchmarkItem) -> bool:
     )
 
 
-def status_labels(items: Sequence[BenchmarkItem]) -> list[str]:
+def status_labels(items: Sequence[BenchmarkItem], backend: str | None = None) -> list[str]:
     labels = [NOT_CLINICAL_LABEL]
     if any(i.synthetic for i in items):
         labels.insert(0, SYNTHETIC_LABEL)
     if any(not is_primary_eligible(i) for i in items):
         labels.append(UNVERIFIED_LABEL)
+    if backend is not None:
+        labels.append(MOCK_LABEL if backend == "mock" else REAL_LABEL)
     return labels
 
 
@@ -255,7 +259,7 @@ def run_evaluation(
 
     manifest = RunManifest(
         experiment_id=experiment_id,
-        status_labels=status_labels(items),
+        status_labels=status_labels(items, config.backend.value),
         started_at=started,
         completed_at=_now(),
         model_config_path=str(model_config_path),
