@@ -1,0 +1,26 @@
+# Milestone 5 real-model pilot. Local inference through Ollama only. No paid API.
+# All benchmark items are source_pending: every result is an experimental result.
+pilot_id: m5-real-model-pilot
+description: >-
+  Two open-weight models answer 12 NHS benchmark items under three evidence conditions.
+  Evaluation rules and two independent judge models assess each model response.
+result_label: REAL MODEL RESULTS - EXPERIMENTAL RESULTS, SOURCE EVIDENCE PENDING HUMAN REVIEW
+dataset: data/pilot/nhs_pilot_items.jsonl
+output_dir: results/m5-real-model-pilot
+models:
+  - configs/models/ollama-llama3.1-8b.yaml
+  - configs/models/ollama-qwen2.5-7b.yaml
+conditions: [baseline, retrieved, oracle]
+retrieval_top_k: 3
+trials: 1
+judges:
+  - configs/judges/ollama-mistral-nemo-12b.yaml
+  - configs/judges/ollama-phi4-14b.yaml
+judge_prompt_version: v2
+judge_repeats: 1
+prompt_sensitivity:
+  judges: [configs/judges/ollama-mistral-nemo-12b.yaml]
+  prompt_variants: [v2-alt]
+  conditions: [baseline]
+combine_policy: rules_first_review_on_disagreement
+min_judges: 2

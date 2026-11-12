@@ -5,11 +5,16 @@ An evidence-grounded AI safety benchmark for evaluating open-weight LLMs on UK l
 **Working title:** *LiverSWAT-Bench: Evaluating Safety, Truthfulness and Evidence Alignment of
 Open-Weight Language Models in UK Liver Health Advice*
 
-> **Status: pre-release (Milestone 4 of 8).** The repository contains the schema, validation
-> tooling, an evaluation harness, deterministic rule-based scoring, LLM judges with
-> oversight measurements, reporting, documentation, five **synthetic**
-> demonstration cases and three pilot items whose evidence is **pending human verification**.
-> It does **not** yet contain any source-verified benchmark questions or any real model results.
+> **Status: pre-release (Milestone 5 of 8).**
+>
+> - The repository contains 12 National Health Service (NHS) pilot benchmark items and 3 UK Chief
+>   Medical Officers pilot benchmark items. All 15 are `source_pending`: no human review yet.
+> - The real-model pilot results in `results/m5-real-model-pilot/` are experimental results. They
+>   are not primary benchmark results. See [docs/real-model-pilot.md](docs/real-model-pilot.md).
+> - The five demo benchmark items are synthetic. They exist for software tests only.
+
+Documentation follows ASD-STE100 Simplified Technical English principles. Formal compliance has
+not been certified.
 
 ## What this benchmark is, and is not
 
@@ -72,7 +77,11 @@ liverswat --help
 | `liverswat score --results RUN_DIR` | Implemented: deterministic rule-based scoring |
 | `liverswat report --results RUN_DIR` | Implemented: JSON, CSV and Markdown report |
 | `liverswat compare --results DIR` | Implemented: descriptive comparison (paired statistics in Milestone 7) |
-| `liverswat judge --results RUN_DIR --judge CONFIG` | Implemented: LLM judges (automated, not clinical experts) |
+| `liverswat judge --results RUN_DIR --judge CONFIG` | Implemented: judge models (automated, not clinical experts) |
+| `liverswat evaluate ... --evidence-condition baseline\|retrieved\|oracle` | Implemented: evidence conditions A, B and C |
+| `liverswat pilot --config FILE` | Implemented: runs models x conditions, then score, judge, report and summary |
+| `liverswat evidence snapshot\|check\|record-review\|status` | Implemented: source-verification workflow |
+| `liverswat check-docs [--strict]` | Implemented: advisory documentation style check |
 
 Scores come from researcher-authored detection rules and are **not a clinical safety
 assessment**. Dimensions that cannot be scored by rule are recorded as abstained, never as
@@ -102,7 +111,8 @@ labels). Each record states whether its item is synthetic, its track and verific
 and whether it is eligible for the primary score. Exit codes: 0 success, 1 setup or validation
 error, 3 some generations failed (recorded with `status: "error"`).
 
-Backends: `mock`, `transformers` (extra `hf`), `vllm` (extra `vllm`) and `openai_compatible`
+Backends: `mock`, `ollama` (local Ollama server, digest-pinned), `transformers` (extra `hf`),
+`vllm` (extra `vllm`) and `openai_compatible`
 (any `/v1/chat/completions` server; standard library only). API keys are read from the
 environment variable named in `backend_options.api_key_env` and are never written to configs or
 outputs.

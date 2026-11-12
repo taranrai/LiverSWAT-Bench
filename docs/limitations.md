@@ -70,3 +70,49 @@
   judges quote different spans of the same statement.
 - **Cost estimates exist only if you supply rates.** Local inference cost (hardware, energy) is
   not estimated.
+
+## Milestone 5: real-model pilot
+
+Documentation follows ASD-STE100 Simplified Technical English principles. Formal compliance has
+not been certified.
+
+### Evidence
+
+- No benchmark item has a human review. All 15 pilot benchmark items are `source_pending`.
+- A machine check confirms only that an extract occurs verbatim in a page snapshot. A machine
+  check does not confirm that the extract is current or correctly interpreted.
+- National Institute for Health and Care Excellence (NICE) text is not stored. The NICE licence
+  covers UK use only. NICE recommendations are therefore not in the pilot.
+- The questions, expected claims and evaluation rules are drafts by the project. A researcher
+  must review them.
+
+### Models and inference
+
+- The pilot uses two quantised models (Q4_K_M) at about 8 billion parameters. Results do not
+  apply to other sizes, quantisation levels or model versions.
+- The pilot uses one trial per benchmark item at temperature 0. The pilot does not measure
+  variation across trials or across hardware.
+- `gpt-oss:20b` could not load in the installed Ollama version and is not in the pilot.
+
+### Evidence conditions
+
+- Condition B uses a lexical retriever (TF-IDF, term frequency-inverse document frequency) over a
+  small corpus: the passages in the registry. Condition B does not represent a production
+  retrieval system. Oracle recall is reported for each model response.
+- Condition C supplies the exact cited extract. Condition C shows an upper bound for evidence
+  supply. Condition C does not show how a deployed system would perform.
+
+### Judge models
+
+- The judge models are small (12 to 14 billion parameters) and quantised. In exploratory tests, a
+  small judge model paraphrased claims instead of quoting them. Validation sends such claims to
+  human review.
+- The judge models received unverified source evidence (evidence policy `include_unverified`).
+- Judge prompt `v2` was introduced in this milestone after a small model omitted dimensions under
+  prompt `v1`. Results from `v1` and `v2` are not directly comparable.
+- No independent reference standard exists. The pilot reports agreement, not accuracy.
+
+### Sample size
+
+- The pilot has 12 benchmark items. Rates have wide uncertainty. The pilot does not report
+  confidence intervals or statistical tests (planned for Milestone 7).
