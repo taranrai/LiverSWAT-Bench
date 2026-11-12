@@ -57,6 +57,8 @@ class PilotConfig(_Strict):
     retrieval_top_k: int = Field(default=3, ge=1)
     trials: int = Field(default=1, ge=1)
     judges: list[Path] = Field(default_factory=list)
+    #: Canonical judge prompt version: used for judge runs, combination and the summary.
+    judge_prompt_version: str = "v1"
     judge_repeats: int = Field(default=1, ge=1)
     prompt_sensitivity: SensitivitySpec | None = None
     combine_policy: CombinePolicy = CombinePolicy.RULES_FIRST_REVIEW_ON_DISAGREEMENT
@@ -65,6 +67,14 @@ class PilotConfig(_Strict):
 
 def load_pilot_config(path: Path) -> PilotConfig:
     return PilotConfig.model_validate(yaml.safe_load(path.read_text(encoding="utf-8")))
+
+
+def combine_settings(config: PilotConfig) -> CombineSettings:
+    return CombineSettings(
+        policy=config.combine_policy,
+        min_judges=config.min_judges,
+        canonical_prompt_version=config.judge_prompt_version,
+    )
 
 
 def run_dir_name(model_config_id: str, condition: str) -> str:
@@ -119,6 +129,7 @@ def run_pilot(
                         judge_path,
                         source_files=source_files,
                         passage_files=passage_files,
+                        prompt_versions=[config.judge_prompt_version],
                         repeats=config.judge_repeats,
                         repo_root=repo_root,
                     )
@@ -139,14 +150,13 @@ def run_pilot(
                             judge_path,
                             source_files=source_files,
                             passage_files=passage_files,
-                            prompt_versions=["v1", *sens.prompt_variants],
+                            prompt_versions=[config.judge_prompt_version, *sens.prompt_variants],
                             repeats=config.judge_repeats,
                             overwrite=True,
                             repo_root=repo_root,
                         )
-            settings = CombineSettings(policy=config.combine_policy, min_judges=config.min_judges)
-            write_report(load_scored_run(run_dir), run_dir / "report", settings)
-    settings = CombineSettings(policy=config.combine_policy, min_judges=config.min_judges)
+            write_report(load_scored_run(run_dir), run_dir / "report", combine_settings(config))
+    settings = combine_settings(config)
     runs = [load_scored_run(d) for d in run_dirs]
     write_comparison(runs, out / "comparison", settings)
     summary = summarise_pilot(config, run_dirs, settings)
@@ -226,7 +236,11 @@ def summarise_run_dir(run_dir: Path, settings: CombineSettings) -> dict[str, Any
         out["judges"] = None
         return out
 
-    canonical = [j for j in run.judgements if j.prompt_version == "v1" and j.repeat == 0]
+    canonical = [
+        j
+        for j in run.judgements
+        if j.prompt_version == settings.canonical_prompt_version and j.repeat == 0
+    ]
     per_judge = {}
     for jid in sorted({j.judge_id for j in canonical}):
         js = [j for j in canonical if j.judge_id == jid]
@@ -255,7 +269,7 @@ def summarise_run_dir(run_dir: Path, settings: CombineSettings) -> dict[str, Any
     cdims = [d for c in combined for d in c.dimensions if d.combined_status != "not_applicable"]
     pairs = [d for d in cdims if d.consensus in ("consensus", "judges_disagree")]
     rule_judge = [d for d in cdims if d.rule_judge_difference is not None]
-    oversight = oversight_metrics(run.judgements, run.scores)
+    oversight = oversight_metrics(run.judgements, run.scores, settings.canonical_prompt_version)
     out["judges"] = {
         "per_judge": per_judge,
         "judge_disagreement": _rate(
@@ -294,6 +308,7 @@ def summarise_pilot(
         "dataset": str(config.dataset),
         "conditions": config.conditions,
         "combine_policy": settings.policy.value,
+        "judge_prompt_version": settings.canonical_prompt_version,
         "notes": [
             "Agreement between automated evaluators measures consistency, not correctness.",
             "No independent reference standard exists; evaluator accuracy is not reported.",
@@ -411,7 +426,8 @@ def render_pilot_markdown(summary: dict[str, Any]) -> str:
                 any_sens = True
                 exact = "n/a" if v["exact_agreement"] is None else f"{v['exact_agreement']:.2f}"
                 lines.append(
-                    f"- {r['run']} / {jid}: `{variant}` vs `v1`: exact agreement {exact} "
+                    f"- {r['run']} / {jid}: `{variant}` vs `{ps['canonical_prompt_version']}`: "
+                    f"exact agreement {exact} "
                     f"(n={v['n']}), abstention flips {v['abstention_flips']} "
                     f"(of {v['n_compared']})"
                 )

@@ -69,6 +69,31 @@ _RULES_ALT = """Instructions:
 - Use abstain_reason "not applicable" only for dimensions the rubric marks not applicable.
 - Reply with a single JSON object only, matching this structure:"""
 
+
+def _six_dimension_template() -> dict:
+    return {
+        "dimensions": [
+            {
+                "dimension": d.value,
+                "score": "integer 0-4, or null if abstaining",
+                "abstain": "true or false",
+                "abstain_reason": "string, required when abstain is true, else null",
+                "evidence_passage_ids": ["supplied passage IDs that support this judgement"],
+                "explanation": "short justification",
+                "confidence": "low | medium | high",
+            }
+            for d in Dimension
+        ],
+        "claims": OUTPUT_FORMAT["claims"],
+    }
+
+
+_COMPLETENESS = (
+    'The "dimensions" list must contain exactly six entries, one for each of: '
+    + ", ".join(d.value for d in Dimension)
+    + ". Keep this order. Abstain on a dimension instead of leaving it out."
+)
+
 PROMPTS = {
     "v1": (
         "You assess a response to a UK liver health question against supplied evidence.",
@@ -79,7 +104,21 @@ PROMPTS = {
         "provided.",
         _RULES_ALT,
     ),
+    # v2: v1 rules plus an explicit six-dimension template (Milestone 5). Added after a small
+    # model returned only the dimensions named in the v1 rules.
+    "v2": (
+        "You assess a response to a UK liver health question against supplied evidence.",
+        _RULES_V1.replace("in exactly this format:", f"in exactly this format. {_COMPLETENESS}"),
+    ),
+    "v2-alt": (
+        "Your task is to evaluate an answer to a UK liver-health question using the evidence "
+        "provided.",
+        _RULES_ALT.replace("matching this structure:", f"matching this structure. {_COMPLETENESS}"),
+    ),
 }
+
+#: Prompt versions whose output template lists all six dimensions.
+SIX_DIMENSION_TEMPLATE = {"v2", "v2-alt"}
 
 
 @dataclass
@@ -125,7 +164,10 @@ def build_messages(
     if prompt_version not in PROMPTS:
         raise ValueError(f"unknown prompt version {prompt_version!r}; known: {sorted(PROMPTS)}")
     intro, rules = PROMPTS[prompt_version]
-    system = f"{intro}\n\n{rules}\n{json.dumps(OUTPUT_FORMAT, indent=2)}"
+    template = (
+        _six_dimension_template() if prompt_version in SIX_DIMENSION_TEMPLATE else OUTPUT_FORMAT
+    )
+    system = f"{intro}\n\n{rules}\n{json.dumps(template, indent=2)}"
     user = (
         f"PROMPT_VERSION: {prompt_version}\n"
         f"QUESTION_ID: {item.question_id}\n\n"

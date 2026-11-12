@@ -333,3 +333,14 @@ def test_failed_response_is_skipped(responses):
                        item=ITEM, registry=REGISTRY, prompt_version="v1", repeat=0)  # fmt: skip
     assert record.status == "skipped_no_response"
     assert adapter.calls == []
+
+
+def test_retry_returns_validation_error_to_the_judge(responses):
+    record, adapter = run_judge(responses, ["not json", jf.output()])
+    assert record.status == "ok"
+    first, second = adapter.calls[0][0], adapter.calls[1][0]
+    assert len(second) == len(first) + 2
+    assert second[-2] == {"role": "assistant", "content": "not json"}
+    assert "Your previous reply could not be used" in second[-1]["content"]
+    assert "no valid JSON object" in second[-1]["content"]
+    assert record.messages == first  # the stored prompt is the original prompt

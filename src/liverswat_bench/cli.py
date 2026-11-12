@@ -323,11 +323,15 @@ def score(
     typer.echo(f"Scores:   {result.scores_path}")
 
 
-def _combine_settings(policy: str, min_judges: int):
+def _combine_settings(policy: str, min_judges: int, canonical_prompt_version: str = "v1"):
     from liverswat_bench.evaluation.combine import CombinePolicy, CombineSettings
 
     try:
-        return CombineSettings(policy=CombinePolicy(policy), min_judges=min_judges)
+        return CombineSettings(
+            policy=CombinePolicy(policy),
+            min_judges=min_judges,
+            canonical_prompt_version=canonical_prompt_version,
+        )
     except ValueError as exc:
         typer.echo(f"error: unknown policy {policy!r}", err=True)
         raise typer.Exit(EXIT_INVALID) from exc
@@ -355,6 +359,9 @@ def report(
     min_judges: Annotated[
         int, typer.Option(min=1, help="Judges that must score a dimension for consensus.")
     ] = 2,
+    canonical_prompt_version: Annotated[
+        str, typer.Option(help="Judge prompt version used for combination (for example v2).")
+    ] = "v1",
 ) -> None:
     """Write summary.json, item_scores.csv, dimension_summary.csv and report.md for a run.
 
@@ -368,7 +375,9 @@ def report(
     try:
         run = load_scored_run(results)
         paths = write_report(
-            run, output_dir or results / "report", _combine_settings(policy, min_judges)
+            run,
+            output_dir or results / "report",
+            _combine_settings(policy, min_judges, canonical_prompt_version),
         )
     except ReportError as exc:
         typer.echo(f"error: {exc}", err=True)
@@ -400,6 +409,9 @@ def compare(
     min_judges: Annotated[
         int, typer.Option(min=1, help="Judges that must score a dimension for consensus.")
     ] = 2,
+    canonical_prompt_version: Annotated[
+        str, typer.Option(help="Judge prompt version used for combination (for example v2).")
+    ] = "v1",
 ) -> None:
     """Descriptive side-by-side comparison of scored runs.
 
@@ -417,7 +429,9 @@ def compare(
         raise typer.Exit(EXIT_INVALID)
     try:
         runs = [load_scored_run(d) for d in run_dirs]
-        paths = write_comparison(runs, output_dir, _combine_settings(policy, min_judges))
+        paths = write_comparison(
+            runs, output_dir, _combine_settings(policy, min_judges, canonical_prompt_version)
+        )
     except ReportError as exc:
         typer.echo(f"error: {exc}", err=True)
         raise typer.Exit(EXIT_INVALID) from exc
@@ -479,8 +493,8 @@ def pilot(
     Steps with existing outputs are skipped, so an interrupted pilot can resume. Real
     model backends run real inference. Check the configuration before you run it.
     """
-    from liverswat_bench.evaluation.combine import CombineSettings
     from liverswat_bench.experiments.pilot import (
+        combine_settings,
         load_pilot_config,
         render_pilot_markdown,
         run_dir_name,
@@ -503,8 +517,7 @@ def pilot(
                 for m in cfg.models
                 for c in cfg.conditions
             ]
-            settings = CombineSettings(policy=cfg.combine_policy, min_judges=cfg.min_judges)
-            summary = summarise_pilot(cfg, run_dirs, settings)
+            summary = summarise_pilot(cfg, run_dirs, combine_settings(cfg))
             import json
 
             (cfg.output_dir / "pilot_summary.json").write_text(json.dumps(summary, indent=2) + "\n")

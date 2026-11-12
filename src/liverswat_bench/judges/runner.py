@@ -37,6 +37,10 @@ from liverswat_bench.models import AdapterError, ModelAdapter, create_adapter
 from liverswat_bench.models.config import ModelConfig
 
 JUDGEMENTS_DIR = "judgements"
+REPAIR_INSTRUCTION = (
+    "Your previous reply could not be used. Error: {error}. "
+    "Return one corrected JSON object only, in the required format."
+)
 
 
 class JudgeRunError(RuntimeError):
@@ -134,12 +138,13 @@ def judge_one(
     prompt_sha = hashlib.sha256(json.dumps(messages, sort_keys=True).encode()).hexdigest()
     attempts: list[Attempt] = []
     raw = None
+    attempt_messages = messages
     for attempt in range(config.max_retries + 1):
         seed = None if params.seed is None else params.seed + 1000 * attempt
         attempt_params = params.model_copy(update={"seed": seed})
         clock = time.perf_counter()
         try:
-            result = adapter.generate(messages, attempt_params)
+            result = adapter.generate(attempt_messages, attempt_params)
         except AdapterError as exc:
             attempts.append(
                 Attempt(
@@ -170,6 +175,13 @@ def judge_one(
         )
         if raw is not None:
             break
+        # Repair retry: at temperature 0 a new seed alone repeats the same output, so return
+        # the validation error to the judge model and ask for a corrected object.
+        attempt_messages = [
+            *messages,
+            {"role": "assistant", "content": result.text},
+            {"role": "user", "content": REPAIR_INSTRUCTION.format(error=error)},
+        ]
 
     prompt_tokens = _sum([a.prompt_tokens for a in attempts])
     completion_tokens = _sum([a.completion_tokens for a in attempts])
