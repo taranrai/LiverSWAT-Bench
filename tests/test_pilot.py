@@ -132,3 +132,15 @@ def test_real_model_configs_are_pinned():
         assert cfg.licence and cfg.quantisation, path.name
     manifest_fields = RunManifest.model_fields
     assert "evidence_condition" in manifest_fields
+
+
+def test_real_judge_configs_are_pinned_and_use_v2():
+    from liverswat_bench.judges.schema import load_judge_config
+
+    paths = sorted((REPO_ROOT / "configs/judges").glob("ollama-*.yaml"))
+    assert paths
+    for path in paths:
+        cfg = load_judge_config(path)
+        assert cfg.model.revision_pinned, path.name
+        assert cfg.model.licence and cfg.model.quantisation, path.name
+        assert cfg.prompt_version == "v2", path.name
