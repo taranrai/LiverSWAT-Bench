@@ -31,3 +31,7 @@ jobs:
         run: liverswat validate
       - name: Test
         run: pytest
+      - name: Mock model evaluation (no GPU, no API)
+        run: |
+          liverswat evaluate --model mock --dataset data/examples/demo_items.jsonl --experiment-id ci-mock-demo
+          liverswat evaluate --model mock --dataset data/pilot/uk_cmo_pilot_items.jsonl --experiment-id ci-mock-pilot

@@ -19,7 +19,7 @@ def test_repository_data_is_valid():
     items, sources, passages = discover_files(REPO_ROOT / "data")
     report = validate_dataset(items, sources, passages)
     assert report.ok, "\n".join(str(i) for i in report.issues)
-    assert sum(report.items_per_file.values()) == 5
+    assert sum(report.items_per_file.values()) == 8  # 5 demo + 3 pilot
 
 
 def test_duplicate_question_ids(tmp_path, demo_items, demo_source_file, demo_passage_file):

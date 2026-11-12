@@ -1,7 +1,35 @@
 # Evaluation protocol
 
-Status: Milestone 1 defines the dimensions, weights, anchors and item-level rubric format.
-Scoring code arrives in Milestones 3 and 4.
+Status: Milestone 1 defined the dimensions, weights, anchors and item-level rubric format.
+Milestone 2 added response collection (below). Scoring code arrives in Milestones 3 and 4.
+
+## Response collection (Milestone 2)
+
+`liverswat evaluate` validates the dataset against the evidence registry, refuses to run if
+validation fails, skips `retired` items, and stores responses separately from items and
+evidence:
+
+- `responses.jsonl` holds one record per item and trial (`schemas/response_record.schema.json`):
+  - item provenance: `synthetic`, track, verification status, evidence level,
+    `primary_eligible`, dataset hash;
+  - the model as configured: name, revision and whether it is pinned, backend, licence,
+    open-weight and OSI flags, size, quantisation;
+  - the model ID the backend reports;
+  - the exact messages sent, the generation parameters with the per-trial seed, the full
+    response text, finish reason, token counts and timestamps with latency;
+  - `status: ok` or `error`.
+- `manifest.json` holds run-level metadata (`schemas/run_manifest.schema.json`): the config and
+  its hash, the dataset and registry file hashes, counts by track and status, git commit and
+  dirty flag, Python, platform, CPU, library versions and backend or GPU details. Hostnames,
+  usernames and environment variables are not recorded.
+
+Failed generations are recorded as errors, never as empty answers, so later scoring can treat
+them as missing rather than zero. Every manifest carries status labels: synthetic data,
+items that are not source-verified, and "evidence-grounded, not clinically validated".
+
+Temperature 0 means greedy decoding. Repeated trials use seed + trial index. GPU kernels and
+hosted APIs can still be non-deterministic, so repeated trials measure output stability rather
+than assume it.
 
 ## Dimensions and provisional weights
 

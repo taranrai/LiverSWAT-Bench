@@ -1,0 +1,160 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "benchmark_versions": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Benchmark Versions",
+      "type": "array"
+    },
+    "command": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Command"
+    },
+    "completed_at": {
+      "format": "date-time",
+      "title": "Completed At",
+      "type": "string"
+    },
+    "dataset_path": {
+      "title": "Dataset Path",
+      "type": "string"
+    },
+    "dataset_sha256": {
+      "title": "Dataset Sha256",
+      "type": "string"
+    },
+    "environment": {
+      "additionalProperties": true,
+      "title": "Environment",
+      "type": "object"
+    },
+    "experiment_id": {
+      "title": "Experiment Id",
+      "type": "string"
+    },
+    "items_by_track": {
+      "additionalProperties": {
+        "type": "integer"
+      },
+      "title": "Items By Track",
+      "type": "object"
+    },
+    "items_by_verification_status": {
+      "additionalProperties": {
+        "type": "integer"
+      },
+      "title": "Items By Verification Status",
+      "type": "object"
+    },
+    "model_config_path": {
+      "title": "Model Config Path",
+      "type": "string"
+    },
+    "model_config_sha256": {
+      "title": "Model Config Sha256",
+      "type": "string"
+    },
+    "model_settings": {
+      "additionalProperties": true,
+      "title": "Model Settings",
+      "type": "object"
+    },
+    "n_error": {
+      "title": "N Error",
+      "type": "integer"
+    },
+    "n_items": {
+      "title": "N Items",
+      "type": "integer"
+    },
+    "n_items_skipped_retired": {
+      "title": "N Items Skipped Retired",
+      "type": "integer"
+    },
+    "n_ok": {
+      "title": "N Ok",
+      "type": "integer"
+    },
+    "n_primary_eligible_items": {
+      "title": "N Primary Eligible Items",
+      "type": "integer"
+    },
+    "n_records": {
+      "title": "N Records",
+      "type": "integer"
+    },
+    "n_synthetic_items": {
+      "title": "N Synthetic Items",
+      "type": "integer"
+    },
+    "registry_files": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Registry Files",
+      "type": "object"
+    },
+    "schema_version": {
+      "const": "1",
+      "default": "1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "started_at": {
+      "format": "date-time",
+      "title": "Started At",
+      "type": "string"
+    },
+    "status_labels": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Status Labels",
+      "type": "array"
+    },
+    "trials": {
+      "title": "Trials",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "experiment_id",
+    "status_labels",
+    "started_at",
+    "completed_at",
+    "model_config_path",
+    "model_config_sha256",
+    "model_settings",
+    "dataset_path",
+    "dataset_sha256",
+    "registry_files",
+    "benchmark_versions",
+    "trials",
+    "n_items",
+    "n_items_skipped_retired",
+    "n_records",
+    "n_ok",
+    "n_error",
+    "items_by_track",
+    "items_by_verification_status",
+    "n_synthetic_items",
+    "n_primary_eligible_items",
+    "environment"
+  ],
+  "title": "RunManifest",
+  "type": "object"
+}

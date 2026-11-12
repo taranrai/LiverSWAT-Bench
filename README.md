@@ -5,9 +5,11 @@ An evidence-grounded AI safety benchmark for evaluating open-weight LLMs on UK l
 **Working title:** *LiverSWAT-Bench: Evaluating Safety, Truthfulness and Evidence Alignment of
 Open-Weight Language Models in UK Liver Health Advice*
 
-> **Status: pre-release (Milestone 1 of 8).** The repository contains the schema, validation
-> tooling, documentation and five **synthetic** demonstration cases. It does **not** yet contain
-> any source-verified benchmark questions or any model results.
+> **Status: pre-release (Milestone 2 of 8).** The repository contains the schema, validation
+> tooling, an evaluation harness that collects model responses, documentation, five **synthetic**
+> demonstration cases and three pilot items whose evidence is **pending human verification**.
+> It does **not** yet contain any source-verified benchmark questions, any scoring or any model
+> results.
 
 ## What this benchmark is, and is not
 
@@ -46,13 +48,20 @@ liverswat validate                      # validate everything under data/
 liverswat validate --items data/examples/demo_items.jsonl \
                    --sources data/examples/demo_sources.jsonl \
                    --passages data/examples/demo_passages.jsonl
+
+# Collect responses with the deterministic mock model (no GPU, no download, no API)
+liverswat evaluate --model mock --dataset data/examples/demo_items.jsonl
+
+# A real model (needs: pip install -e ".[hf]"); pin the revision in the config first
+liverswat evaluate --model configs/models/qwen2.5-0.5b-instruct-hf.yaml \
+                   --dataset data/pilot/uk_cmo_pilot_items.jsonl --trials 3
 liverswat --help
 ```
 
 | Command | Status |
 | --- | --- |
 | `liverswat validate` | Implemented |
-| `liverswat evaluate --model MODEL_ID --dataset PATH` | Planned (Milestone 2) |
+| `liverswat evaluate --model MODEL --dataset PATH` | Implemented: collects responses, no scoring |
 | `liverswat report --results DIR` | Planned (Milestone 3) |
 | `liverswat judge --results PATH` | Planned (Milestone 4) |
 | `liverswat compare --results DIR` | Planned (Milestone 7) |
@@ -60,12 +69,38 @@ liverswat --help
 Commands that are not implemented yet exit with code 2 and say so. `validate` exits with code 1
 if it finds any problem.
 
+### `liverswat evaluate`
+
+| Option | Default | Meaning |
+| --- | --- | --- |
+| `--model` | (required) | Config ID in `--configs-dir` (e.g. `mock`) or a YAML path |
+| `--dataset` | (required) | Items JSONL; validated against the registry before running |
+| `--data-dir` | `data` | Where the evidence registry is discovered |
+| `--configs-dir` | `configs/models` | Where config IDs are looked up |
+| `--output-dir` | `results` | Parent directory for run outputs |
+| `--experiment-id` | timestamp + config + dataset | Run name; existing runs are never overwritten |
+| `--trials` | `1` | Repeated generations per item; trial *t* uses seed + *t* |
+| `--limit` | none | Only the first *N* active (non-retired) items |
+
+Outputs go to `results/<experiment_id>/`: `responses.jsonl` (one record per item and trial) and
+`manifest.json` (configuration, file hashes, git commit, library versions, hardware and status
+labels). Each record states whether its item is synthetic, its track and verification status,
+and whether it is eligible for the primary score. Exit codes: 0 success, 1 setup or validation
+error, 3 some generations failed (recorded with `status: "error"`).
+
+Backends: `mock`, `transformers` (extra `hf`), `vllm` (extra `vllm`) and `openai_compatible`
+(any `/v1/chat/completions` server; standard library only). API keys are read from the
+environment variable named in `backend_options.api_key_env` and are never written to configs or
+outputs.
+
 ## Repository layout
 
 ```
-configs/          model, experiment and judge configurations (from Milestone 2)
+configs/models/   model configs (mock + example Qwen configs: transformers, vLLM, OpenAI-compatible)
+configs/          experiment and judge configurations (later milestones)
 data/evidence/    UK evidence registry: sources.jsonl, passages.jsonl
 data/examples/    synthetic demonstration records (software testing only)
+data/pilot/       candidate items from verification pilots (source_pending)
 data/verified/    source-verified benchmark items (none yet)
 data/experimental/ adversarial / misinformation stress-test items (none yet)
 data/private/     holdout data; git-ignored, never committed
