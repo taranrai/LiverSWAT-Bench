@@ -1,0 +1,301 @@
+{
+  "$defs": {
+    "Backend": {
+      "enum": [
+        "mock",
+        "transformers",
+        "vllm",
+        "openai_compatible"
+      ],
+      "title": "Backend",
+      "type": "string"
+    },
+    "CostRates": {
+      "additionalProperties": false,
+      "description": "Optional, user-supplied prices. Never guessed: unset means 'not available'.",
+      "properties": {
+        "currency": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Currency"
+        },
+        "input_per_1k_tokens": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Input Per 1K Tokens"
+        },
+        "output_per_1k_tokens": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Output Per 1K Tokens"
+        }
+      },
+      "title": "CostRates",
+      "type": "object"
+    },
+    "EvidencePolicy": {
+      "enum": [
+        "verified_only",
+        "include_unverified"
+      ],
+      "title": "EvidencePolicy",
+      "type": "string"
+    },
+    "GenerationParams": {
+      "additionalProperties": false,
+      "properties": {
+        "max_new_tokens": {
+          "default": 512,
+          "exclusiveMinimum": 0,
+          "title": "Max New Tokens",
+          "type": "integer"
+        },
+        "seed": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": 0,
+          "title": "Seed"
+        },
+        "stop": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Stop",
+          "type": "array"
+        },
+        "temperature": {
+          "default": 0.0,
+          "minimum": 0.0,
+          "title": "Temperature",
+          "type": "number"
+        },
+        "top_p": {
+          "default": 1.0,
+          "exclusiveMinimum": 0.0,
+          "maximum": 1.0,
+          "title": "Top P",
+          "type": "number"
+        }
+      },
+      "title": "GenerationParams",
+      "type": "object"
+    },
+    "ModelConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "allow_unpinned_revision": {
+          "default": false,
+          "title": "Allow Unpinned Revision",
+          "type": "boolean"
+        },
+        "backend": {
+          "$ref": "#/$defs/Backend"
+        },
+        "backend_options": {
+          "additionalProperties": true,
+          "title": "Backend Options",
+          "type": "object"
+        },
+        "config_id": {
+          "pattern": "^[a-z0-9][a-z0-9._-]*$",
+          "title": "Config Id",
+          "type": "string"
+        },
+        "generation": {
+          "$ref": "#/$defs/GenerationParams"
+        },
+        "licence": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Licence"
+        },
+        "model_name": {
+          "minLength": 1,
+          "title": "Model Name",
+          "type": "string"
+        },
+        "model_revision": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Model Revision"
+        },
+        "notes": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Notes"
+        },
+        "open_weight": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Open Weight"
+        },
+        "osi_approved_licence": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Osi Approved Licence"
+        },
+        "parameter_count": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Parameter Count"
+        },
+        "prompt_template": {
+          "default": "{question}",
+          "title": "Prompt Template",
+          "type": "string"
+        },
+        "quantisation": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quantisation"
+        },
+        "system_prompt": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "System Prompt"
+        }
+      },
+      "required": [
+        "config_id",
+        "model_name",
+        "backend"
+      ],
+      "title": "ModelConfig",
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "cost": {
+      "$ref": "#/$defs/CostRates"
+    },
+    "evidence_policy": {
+      "$ref": "#/$defs/EvidencePolicy",
+      "default": "verified_only"
+    },
+    "judge_id": {
+      "pattern": "^[a-z0-9][a-z0-9._-]*$",
+      "title": "Judge Id",
+      "type": "string"
+    },
+    "max_retries": {
+      "default": 2,
+      "maximum": 10,
+      "minimum": 0,
+      "title": "Max Retries",
+      "type": "integer"
+    },
+    "model": {
+      "$ref": "#/$defs/ModelConfig"
+    },
+    "notes": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Notes"
+    },
+    "prompt_version": {
+      "default": "v1",
+      "title": "Prompt Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "judge_id",
+    "model"
+  ],
+  "title": "JudgeConfig",
+  "type": "object"
+}

@@ -8,9 +8,11 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
+from liverswat_bench.evaluation.combine import CombinedRecord, CombineSettings
 from liverswat_bench.evaluation.dimensions import Dimension
 from liverswat_bench.evaluation.records import NOT_CLINICAL_LABEL
 from liverswat_bench.evaluation.scoring_records import SCORING_LABEL, ScoreRecord
+from liverswat_bench.reporting.judge_report import build_judge_section, render_judge_markdown
 from liverswat_bench.reporting.summary import ScoredRun, summarise_run
 
 DIM_LABELS = {
@@ -28,7 +30,7 @@ LIMITATIONS = [
     "Only statements covered by an item's rules are assessed; the rest of each response "
     "is unassessed.",
     "Rule-based scoring cannot award 4; UK evidence alignment, actionability and "
-    "communication quality always abstain until Milestone 4.",
+    "communication quality are never scored by rules (only by judge consensus, if judges ran).",
     "Aggregate scores are computed only when every applicable dimension is scored; "
     "missing and abstained scores are never treated as zero.",
     "Critical flags are rule-detected and require human review. They are not clinical "
@@ -72,7 +74,9 @@ def _write_csv(path: Path, rows: list[dict[str, Any]]) -> None:
         if not rows:
             fh.write("")
             return
-        writer = csv.DictWriter(fh, fieldnames=list(rows[0]))
+        # Union of keys in first-seen order: rows may differ (e.g. judged vs unjudged runs).
+        fieldnames = list(dict.fromkeys(k for row in rows for k in row))
+        writer = csv.DictWriter(fh, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(rows)
 
@@ -189,7 +193,11 @@ def _partition_md(title: str, ps: dict[str, Any], primary: bool) -> list[str]:
     return lines
 
 
-def render_markdown(summary: dict[str, Any], scores: Sequence[ScoreRecord]) -> str:
+def render_markdown(
+    summary: dict[str, Any],
+    scores: Sequence[ScoreRecord],
+    judge_section: dict[str, Any] | None = None,
+) -> str:
     m = summary["model"]
     lines = [
         f"# LiverSWAT-Bench report: {summary['experiment_id']}",
@@ -234,31 +242,81 @@ def render_markdown(summary: dict[str, Any], scores: Sequence[ScoreRecord]) -> s
             + " | ".join(cells)
             + f" | {agg} | {crit} |"
         )
+    if judge_section:
+        lines += ["", *render_judge_markdown(judge_section)]
     lines += ["", "## Limitations", "", *[f"- {item}" for item in LIMITATIONS], ""]
     return "\n".join(lines)
 
 
-def write_report(run: ScoredRun, out_dir: Path) -> dict[str, Path]:
+def combined_rows(records: Sequence[CombinedRecord]) -> list[dict[str, Any]]:
+    rows = []
+    for c in records:
+        row: dict[str, Any] = {
+            "record_id": c.record_id,
+            "question_id": c.question_id,
+            "trial": c.trial,
+            "primary_eligible": c.primary_eligible,
+            "policy": c.policy.value,
+        }
+        for d in c.dimensions:
+            key = d.dimension.value
+            row[f"{key}_rule"] = d.rule_score
+            for jid, v in d.judge_scores.items():
+                row[f"{key}_judge_{jid}"] = v
+            row[f"{key}_consensus"] = d.consensus
+            row[f"{key}_combined_status"] = d.combined_status
+            row[f"{key}_combined"] = d.combined_score
+            row[f"{key}_source"] = d.combined_source
+        row["combined_aggregate_status"] = c.combined_aggregate.status
+        row["combined_aggregate"] = c.combined_aggregate.score
+        row["judge_flagged_dangerous_claims"] = len(c.judge_flagged_dangerous_claims)
+        rows.append(row)
+    return rows
+
+
+def write_report(
+    run: ScoredRun, out_dir: Path, settings: CombineSettings | None = None
+) -> dict[str, Path]:
     out_dir.mkdir(parents=True, exist_ok=True)
     summary = summarise_run(run)
+    judge_section = build_judge_section(run, settings or CombineSettings())
     paths = {
         "summary_json": out_dir / "summary.json",
         "item_scores_csv": out_dir / "item_scores.csv",
         "dimension_summary_csv": out_dir / "dimension_summary.csv",
         "report_md": out_dir / "report.md",
     }
+    if judge_section:
+        combined = judge_section.pop("_combined_records")
+        summary["judges"] = judge_section
+        paths["combined_scores_jsonl"] = out_dir / "combined_scores.jsonl"
+        paths["combined_scores_csv"] = out_dir / "combined_scores.csv"
+        paths["oversight_json"] = out_dir / "oversight.json"
+        paths["combined_scores_jsonl"].write_text(
+            "".join(c.model_dump_json() + "\n" for c in combined), encoding="utf-8"
+        )
+        _write_csv(paths["combined_scores_csv"], combined_rows(combined))
+        paths["oversight_json"].write_text(
+            json.dumps(judge_section["oversight"], indent=2) + "\n", encoding="utf-8"
+        )
     paths["summary_json"].write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
     _write_csv(paths["item_scores_csv"], item_rows(run.scores))
     _write_csv(paths["dimension_summary_csv"], dimension_rows(summary))
-    paths["report_md"].write_text(render_markdown(summary, run.scores), encoding="utf-8")
+    paths["report_md"].write_text(
+        render_markdown(summary, run.scores, judge_section), encoding="utf-8"
+    )
     return paths
 
 
 # ------------------------------------------------------------------ compare
 
 
-def compare_runs(runs: Sequence[ScoredRun]) -> dict[str, Any]:
+def compare_runs(
+    runs: Sequence[ScoredRun], settings: CombineSettings | None = None
+) -> dict[str, Any]:
+    settings = settings or CombineSettings()
     summaries = [summarise_run(r) for r in runs]
+    judge_sections = [build_judge_section(r, settings) for r in runs]
     warnings = []
     if len({s["dataset"]["sha256"] for s in summaries}) > 1:
         warnings.append("Runs used different datasets; results are not directly comparable.")
@@ -269,7 +327,7 @@ def compare_runs(runs: Sequence[ScoredRun]) -> dict[str, Any]:
     if all(s["partitions"]["primary"]["n_records"] == 0 for s in summaries):
         warnings.append("No run contains primary-eligible items: no primary results to compare.")
     rows = []
-    for s in summaries:
+    for s, js in zip(summaries, judge_sections, strict=True):
         for part in ("primary", "non_primary"):
             ps = s["partitions"][part]
             row = {
@@ -291,6 +349,27 @@ def compare_runs(runs: Sequence[ScoredRun]) -> dict[str, Any]:
             row["aggregate_mean_of_complete"] = ps["aggregate"]["case_level_mean_of_complete"]
             row["critical_rule_detected_records"] = ps["critical_flags"]["n_records_rule_detected"]
             row["critical_needs_review_records"] = ps["critical_flags"]["n_records_needs_review"]
+            row["judges"] = ",".join(j["judge_id"] for j in js["judges"]) if js else ""
+            if js:
+                cs = js["combined"][part]
+                for dim in Dimension:
+                    cd = cs["dimensions"][dim.value]
+                    row[f"{dim.value}_combined_mean"] = cd["combined_case_level_mean"]
+                    row[f"{dim.value}_combined_n_items"] = cd["n_items_scored"]
+                row["combined_aggregate_mean_of_complete"] = cs["combined_aggregate"][
+                    "case_level_mean_of_complete"
+                ]
+                row["rule_judge_material_disagreements"] = sum(
+                    cs["dimensions"][d.value]["n_material_rule_judge_disagreements"]
+                    for d in Dimension
+                )
+                row["judge_vs_judge_disagreements"] = sum(
+                    cs["dimensions"][d.value]["consensus"].get("judges_disagree", 0)
+                    for d in Dimension
+                )
+                row["judge_flagged_dangerous_records"] = cs[
+                    "n_records_with_judge_flagged_dangerous_claims"
+                ]
             rows.append(row)
     return {
         "labels": [NOT_CLINICAL_LABEL, SCORING_LABEL],
@@ -301,9 +380,11 @@ def compare_runs(runs: Sequence[ScoredRun]) -> dict[str, Any]:
     }
 
 
-def write_comparison(runs: Sequence[ScoredRun], out_dir: Path) -> dict[str, Path]:
+def write_comparison(
+    runs: Sequence[ScoredRun], out_dir: Path, settings: CombineSettings | None = None
+) -> dict[str, Path]:
     out_dir.mkdir(parents=True, exist_ok=True)
-    comparison = compare_runs(runs)
+    comparison = compare_runs(runs, settings)
     paths = {
         "comparison_json": out_dir / "comparison.json",
         "comparison_csv": out_dir / "comparison.csv",
@@ -340,6 +421,33 @@ def write_comparison(runs: Sequence[ScoredRun], out_dir: Path) -> dict[str, Path
                 f"| {r['experiment_id']} | `{r['model_name']}` | {r['model_revision'] or 'n/a'} | "
                 f"{r['n_items']} | {dims} | {_fmt(r['aggregate_mean_of_complete'])} | "
                 f"{r['critical_rule_detected_records']} / {r['critical_needs_review_records']} |"
+            )
+    judged = [r for r in comparison["rows"] if r.get("judges")]
+    if judged:
+        lines += [
+            "",
+            "## Combined rule + judge view (automated; not clinical expert review)",
+            "",
+            "| Run | Partition | Judges | "
+            + " | ".join(DIM_LABELS[d] for d in Dimension)
+            + " | Aggregate | Rule/judge disagreements | Judge/judge disagreements | "
+            "Judge-flagged dangerous |",
+            "| --- | --- | --- | "
+            + " | ".join("---" for _ in Dimension)
+            + " | --- | --- | --- | --- |",
+        ]
+        for r in judged:
+            if not r["n_records"]:
+                continue
+            dims = " | ".join(
+                f"{_fmt(r[f'{d.value}_combined_mean'])} (n={r[f'{d.value}_combined_n_items']})"
+                for d in Dimension
+            )
+            lines.append(
+                f"| {r['experiment_id']} | {r['partition']} | {r['judges']} | {dims} | "
+                f"{_fmt(r['combined_aggregate_mean_of_complete'])} | "
+                f"{r['rule_judge_material_disagreements']} | "
+                f"{r['judge_vs_judge_disagreements']} | {r['judge_flagged_dangerous_records']} |"
             )
     paths["comparison_md"].write_text("\n".join(lines) + "\n", encoding="utf-8")
     return paths

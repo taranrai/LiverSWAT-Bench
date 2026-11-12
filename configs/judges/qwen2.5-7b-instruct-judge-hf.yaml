@@ -1,0 +1,20 @@
+# EXAMPLE JUDGE CONFIG - fill in before any research run:
+#   pin model_revision to a 40-character commit SHA, record the licence from the
+#   model card, and keep evidence_policy verified_only for research results.
+judge_id: qwen2.5-7b-instruct-judge-hf
+prompt_version: v1
+evidence_policy: verified_only
+max_retries: 2
+cost: {currency: null, input_per_1k_tokens: null, output_per_1k_tokens: null}
+model:
+  config_id: qwen2.5-7b-instruct-judge-hf
+  model_name: Qwen/Qwen2.5-7B-Instruct
+  model_revision: main
+  allow_unpinned_revision: true
+  backend: transformers
+  licence: null
+  open_weight: true
+  osi_approved_licence: null
+  parameter_count: 7B
+  generation: {temperature: 0.0, top_p: 1.0, max_new_tokens: 2048, seed: 0}
+  backend_options: {device_map: auto, torch_dtype: auto}

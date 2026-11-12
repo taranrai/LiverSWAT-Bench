@@ -1,0 +1,509 @@
+{
+  "$defs": {
+    "Attempt": {
+      "additionalProperties": false,
+      "properties": {
+        "attempt": {
+          "title": "Attempt",
+          "type": "integer"
+        },
+        "completion_tokens": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Completion Tokens"
+        },
+        "error": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Error"
+        },
+        "latency_s": {
+          "title": "Latency S",
+          "type": "number"
+        },
+        "prompt_tokens": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Prompt Tokens"
+        },
+        "raw_output": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Raw Output"
+        },
+        "seed": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Seed"
+        }
+      },
+      "required": [
+        "attempt",
+        "raw_output",
+        "error",
+        "latency_s"
+      ],
+      "title": "Attempt",
+      "type": "object"
+    },
+    "ClaimClassification": {
+      "enum": [
+        "supported",
+        "contradicted",
+        "unsupported",
+        "unverifiable"
+      ],
+      "title": "ClaimClassification",
+      "type": "string"
+    },
+    "ClaimJudgement": {
+      "additionalProperties": false,
+      "properties": {
+        "claim_index": {
+          "title": "Claim Index",
+          "type": "integer"
+        },
+        "classification": {
+          "$ref": "#/$defs/ClaimClassification"
+        },
+        "confidence": {
+          "$ref": "#/$defs/Confidence"
+        },
+        "evidence_passage_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Passage Ids",
+          "type": "array"
+        },
+        "explanation": {
+          "title": "Explanation",
+          "type": "string"
+        },
+        "needs_review": {
+          "title": "Needs Review",
+          "type": "boolean"
+        },
+        "potentially_dangerous": {
+          "title": "Potentially Dangerous",
+          "type": "boolean"
+        },
+        "review_reasons": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Review Reasons",
+          "type": "array"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        },
+        "text_found_in_response": {
+          "title": "Text Found In Response",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "claim_index",
+        "text",
+        "text_found_in_response",
+        "classification",
+        "evidence_passage_ids",
+        "explanation",
+        "potentially_dangerous",
+        "confidence",
+        "needs_review"
+      ],
+      "title": "ClaimJudgement",
+      "type": "object"
+    },
+    "Confidence": {
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "title": "Confidence",
+      "type": "string"
+    },
+    "Dimension": {
+      "enum": [
+        "factual_accuracy",
+        "safety_behaviour",
+        "uk_evidence_alignment",
+        "actionability",
+        "communication_quality",
+        "uncertainty_handling"
+      ],
+      "title": "Dimension",
+      "type": "string"
+    },
+    "DimensionJudgement": {
+      "additionalProperties": false,
+      "properties": {
+        "confidence": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Confidence"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "dimension": {
+          "$ref": "#/$defs/Dimension"
+        },
+        "evidence_passage_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Passage Ids",
+          "type": "array"
+        },
+        "explanation": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Explanation"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        },
+        "score": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Score"
+        },
+        "status": {
+          "enum": [
+            "scored",
+            "abstained",
+            "not_applicable",
+            "invalid"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "dimension",
+        "status"
+      ],
+      "title": "DimensionJudgement",
+      "type": "object"
+    },
+    "EvidencePolicy": {
+      "enum": [
+        "verified_only",
+        "include_unverified"
+      ],
+      "title": "EvidencePolicy",
+      "type": "string"
+    },
+    "GenerationParams": {
+      "additionalProperties": false,
+      "properties": {
+        "max_new_tokens": {
+          "default": 512,
+          "exclusiveMinimum": 0,
+          "title": "Max New Tokens",
+          "type": "integer"
+        },
+        "seed": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": 0,
+          "title": "Seed"
+        },
+        "stop": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Stop",
+          "type": "array"
+        },
+        "temperature": {
+          "default": 0.0,
+          "minimum": 0.0,
+          "title": "Temperature",
+          "type": "number"
+        },
+        "top_p": {
+          "default": 1.0,
+          "exclusiveMinimum": 0.0,
+          "maximum": 1.0,
+          "title": "Top P",
+          "type": "number"
+        }
+      },
+      "title": "GenerationParams",
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "attempts": {
+      "items": {
+        "$ref": "#/$defs/Attempt"
+      },
+      "title": "Attempts",
+      "type": "array"
+    },
+    "claims": {
+      "items": {
+        "$ref": "#/$defs/ClaimJudgement"
+      },
+      "title": "Claims",
+      "type": "array"
+    },
+    "completion_tokens": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Completion Tokens"
+    },
+    "cost_currency": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Cost Currency"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "dimensions": {
+      "items": {
+        "$ref": "#/$defs/DimensionJudgement"
+      },
+      "title": "Dimensions",
+      "type": "array"
+    },
+    "estimated_cost": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Estimated Cost"
+    },
+    "evidence_policy": {
+      "$ref": "#/$defs/EvidencePolicy"
+    },
+    "generation": {
+      "$ref": "#/$defs/GenerationParams"
+    },
+    "judge_id": {
+      "title": "Judge Id",
+      "type": "string"
+    },
+    "judge_model": {
+      "additionalProperties": true,
+      "title": "Judge Model",
+      "type": "object"
+    },
+    "judgement_id": {
+      "title": "Judgement Id",
+      "type": "string"
+    },
+    "latency_s": {
+      "title": "Latency S",
+      "type": "number"
+    },
+    "messages": {
+      "items": {
+        "additionalProperties": {
+          "type": "string"
+        },
+        "type": "object"
+      },
+      "title": "Messages",
+      "type": "array"
+    },
+    "passages_supplied": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Passages Supplied",
+      "type": "array"
+    },
+    "passages_supplied_verified": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Passages Supplied Verified",
+      "type": "array"
+    },
+    "passages_withheld": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Passages Withheld",
+      "type": "object"
+    },
+    "prompt_sha256": {
+      "title": "Prompt Sha256",
+      "type": "string"
+    },
+    "prompt_tokens": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Prompt Tokens"
+    },
+    "prompt_version": {
+      "title": "Prompt Version",
+      "type": "string"
+    },
+    "question_id": {
+      "title": "Question Id",
+      "type": "string"
+    },
+    "record_id": {
+      "title": "Record Id",
+      "type": "string"
+    },
+    "repeat": {
+      "title": "Repeat",
+      "type": "integer"
+    },
+    "schema_version": {
+      "const": "1",
+      "default": "1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "ok",
+        "invalid_output",
+        "error",
+        "skipped_no_response"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "trial": {
+      "title": "Trial",
+      "type": "integer"
+    },
+    "validation_issues": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Validation Issues",
+      "type": "array"
+    }
+  },
+  "required": [
+    "judgement_id",
+    "record_id",
+    "question_id",
+    "trial",
+    "judge_id",
+    "judge_model",
+    "prompt_version",
+    "repeat",
+    "evidence_policy",
+    "passages_supplied",
+    "passages_supplied_verified",
+    "passages_withheld",
+    "messages",
+    "prompt_sha256",
+    "generation",
+    "status",
+    "attempts",
+    "latency_s",
+    "created_at"
+  ],
+  "title": "JudgeRecord",
+  "type": "object"
+}

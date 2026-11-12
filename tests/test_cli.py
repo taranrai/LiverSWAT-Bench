@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-import pytest
 from typer.testing import CliRunner
 
-from liverswat_bench.cli import EXIT_INVALID, EXIT_NOT_IMPLEMENTED, EXIT_PARTIAL_FAILURE, app
+from liverswat_bench.cli import EXIT_INVALID, EXIT_PARTIAL_FAILURE, app
 from tests.conftest import REPO_ROOT, write_jsonl
 
 runner = CliRunner()
@@ -57,18 +56,6 @@ def test_validate_no_items(tmp_path):
     result = runner.invoke(app, ["validate", "--data-dir", str(tmp_path)])
     assert result.exit_code == EXIT_INVALID
     assert "no item files found" in result.output
-
-
-@pytest.mark.parametrize(
-    "args",
-    [
-        ["judge", "--results", "r"],
-    ],
-)
-def test_future_commands_fail_clearly(args):
-    result = runner.invoke(app, args)
-    assert result.exit_code == EXIT_NOT_IMPLEMENTED
-    assert "not implemented yet" in result.output
 
 
 def _evaluate(tmp_path, *extra):

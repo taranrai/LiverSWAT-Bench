@@ -8,9 +8,11 @@ from pathlib import Path
 from pydantic import BaseModel
 
 from liverswat_bench.datasets.schema import BenchmarkItem
+from liverswat_bench.evaluation.combine import CombinedRecord
 from liverswat_bench.evaluation.records import ResponseRecord, RunManifest
 from liverswat_bench.evaluation.scoring_records import ScoreRecord, ScoringManifest
 from liverswat_bench.evidence.schema import EvidencePassage, Source
+from liverswat_bench.judges.schema import JudgeConfig, JudgeRecord, JudgeRunManifest
 
 SCHEMA_MODELS: dict[str, type[BaseModel]] = {
     "benchmark_item.schema.json": BenchmarkItem,
@@ -20,6 +22,10 @@ SCHEMA_MODELS: dict[str, type[BaseModel]] = {
     "run_manifest.schema.json": RunManifest,
     "score_record.schema.json": ScoreRecord,
     "scoring_manifest.schema.json": ScoringManifest,
+    "judge_config.schema.json": JudgeConfig,
+    "judge_record.schema.json": JudgeRecord,
+    "judge_manifest.schema.json": JudgeRunManifest,
+    "combined_record.schema.json": CombinedRecord,
 }
 
 

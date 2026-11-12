@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "completed_at": {
+      "format": "date-time",
+      "title": "Completed At",
+      "type": "string"
+    },
+    "dataset_sha256": {
+      "title": "Dataset Sha256",
+      "type": "string"
+    },
+    "environment": {
+      "additionalProperties": true,
+      "title": "Environment",
+      "type": "object"
+    },
+    "experiment_id": {
+      "title": "Experiment Id",
+      "type": "string"
+    },
+    "judge_config": {
+      "additionalProperties": true,
+      "title": "Judge Config",
+      "type": "object"
+    },
+    "judge_config_path": {
+      "title": "Judge Config Path",
+      "type": "string"
+    },
+    "judge_config_sha256": {
+      "title": "Judge Config Sha256",
+      "type": "string"
+    },
+    "judge_id": {
+      "title": "Judge Id",
+      "type": "string"
+    },
+    "n_by_status": {
+      "additionalProperties": {
+        "type": "integer"
+      },
+      "title": "N By Status",
+      "type": "object"
+    },
+    "n_judgements": {
+      "title": "N Judgements",
+      "type": "integer"
+    },
+    "prompt_versions": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Prompt Versions",
+      "type": "array"
+    },
+    "registry_files": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Registry Files",
+      "type": "object"
+    },
+    "repeats": {
+      "title": "Repeats",
+      "type": "integer"
+    },
+    "responses_sha256": {
+      "title": "Responses Sha256",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1",
+      "default": "1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "started_at": {
+      "format": "date-time",
+      "title": "Started At",
+      "type": "string"
+    },
+    "status_labels": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Status Labels",
+      "type": "array"
+    }
+  },
+  "required": [
+    "experiment_id",
+    "judge_id",
+    "judge_config_path",
+    "judge_config_sha256",
+    "judge_config",
+    "prompt_versions",
+    "repeats",
+    "status_labels",
+    "started_at",
+    "completed_at",
+    "n_judgements",
+    "n_by_status",
+    "responses_sha256",
+    "dataset_sha256",
+    "registry_files",
+    "environment"
+  ],
+  "title": "JudgeRunManifest",
+  "type": "object"
+}

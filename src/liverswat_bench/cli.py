@@ -21,7 +21,6 @@ app = typer.Typer(
 )
 
 EXIT_INVALID = 1
-EXIT_NOT_IMPLEMENTED = 2
 EXIT_PARTIAL_FAILURE = 3
 
 
@@ -101,14 +100,6 @@ def validate(
     for issue in report.issues:
         typer.echo(f"  - {issue}", err=True)
     raise typer.Exit(EXIT_INVALID)
-
-
-def _not_implemented(command: str, milestone: int) -> None:
-    typer.echo(
-        f"error: '{command}' is not implemented yet (planned for Milestone {milestone}).",
-        err=True,
-    )
-    raise typer.Exit(EXIT_NOT_IMPLEMENTED)
 
 
 @app.command()
@@ -206,10 +197,68 @@ def evaluate(
 
 @app.command()
 def judge(
-    results: Annotated[Path, typer.Option("--results", help="Model responses file.")],
+    results: Annotated[
+        Path, typer.Option("--results", help="Run directory (contains responses.jsonl).")
+    ],
+    judge_configs: Annotated[
+        list[Path],
+        typer.Option(
+            "--judge",
+            help="Judge config: a YAML path, or an ID in --judges-dir. Repeat for several judges.",
+        ),
+    ],
+    data_dir: Annotated[
+        Path, typer.Option(help="Directory searched for the evidence registry.")
+    ] = Path("data"),
+    judges_dir: Annotated[Path, typer.Option(help="Where judge config IDs are looked up.")] = Path(
+        "configs/judges"
+    ),
+    prompt_variants: Annotated[
+        list[str] | None,
+        typer.Option(
+            "--prompt-variant",
+            help="Prompt version(s) to run (e.g. v1, v1-alt). Default: the config's version. "
+            "Running several measures sensitivity to prompt wording.",
+        ),
+    ] = None,
+    repeats: Annotated[
+        int, typer.Option(min=1, help="Repeated judgements per response (stability).")
+    ] = 1,
+    overwrite: Annotated[bool, typer.Option(help="Replace existing judgements.")] = False,
 ) -> None:
-    """Score stored model responses with automated judges. [Milestone 4]"""
-    _not_implemented("judge", 4)
+    """Assess stored responses with LLM judges (automated, not clinical experts).
+
+    Each judge sees only the question, the response, the evidence passages its
+    evidence policy allows, and the rubric. Outputs are validated (schema,
+    evidence references, claim text); invalid outputs are retried, then
+    abstained. Writes RESULTS/judgements/<judge_id>.jsonl and a manifest.
+    """
+    from liverswat_bench.judges.runner import JudgeRunError, judge_run
+    from liverswat_bench.models import AdapterError, ConfigError
+
+    if not data_dir.is_dir():
+        typer.echo(f"error: data directory not found: {data_dir}", err=True)
+        raise typer.Exit(EXIT_INVALID)
+    _, source_files, passage_files = discover_files(data_dir)
+    for cfg in judge_configs:
+        path = cfg if cfg.suffix in {".yaml", ".yml"} else judges_dir / f"{cfg}.yaml"
+        try:
+            result = judge_run(
+                results,
+                path,
+                source_files=source_files,
+                passage_files=passage_files,
+                prompt_versions=prompt_variants,
+                repeats=repeats,
+                overwrite=overwrite,
+            )
+        except (JudgeRunError, ConfigError, AdapterError) as exc:
+            typer.echo(f"error: {exc}", err=True)
+            raise typer.Exit(EXIT_INVALID) from exc
+        m = result.manifest
+        typer.echo(f"Judge {m.judge_id}: {m.n_judgements} judgement(s) {m.n_by_status}")
+        typer.echo(f"  -> {result.path}")
+    typer.echo("*** AUTOMATED LLM-JUDGE ASSESSMENTS - NOT CLINICAL EXPERT REVIEW ***")
 
 
 @app.command()
@@ -261,6 +310,16 @@ def score(
     typer.echo(f"Scores:   {result.scores_path}")
 
 
+def _combine_settings(policy: str, min_judges: int):
+    from liverswat_bench.evaluation.combine import CombinePolicy, CombineSettings
+
+    try:
+        return CombineSettings(policy=CombinePolicy(policy), min_judges=min_judges)
+    except ValueError as exc:
+        typer.echo(f"error: unknown policy {policy!r}", err=True)
+        raise typer.Exit(EXIT_INVALID) from exc
+
+
 def _scored_run_dirs(results: Path) -> list[Path]:
     if (results / "scores.jsonl").is_file():
         return [results]
@@ -273,17 +332,31 @@ def report(
     output_dir: Annotated[
         Path | None, typer.Option(help="Where to write the report. Default: RESULTS/report.")
     ] = None,
+    policy: Annotated[
+        str,
+        typer.Option(
+            help="Rule/judge combination policy: rules_first_review_on_disagreement "
+            "(default) or rules_first. Rule scores are never overridden."
+        ),
+    ] = "rules_first_review_on_disagreement",
+    min_judges: Annotated[
+        int, typer.Option(min=1, help="Judges that must score a dimension for consensus.")
+    ] = 2,
 ) -> None:
     """Write summary.json, item_scores.csv, dimension_summary.csv and report.md for a run.
 
     Primary-eligible and non-primary records are always reported separately.
-    Critical flags, abstentions and missing scores are counted explicitly.
+    Critical flags, abstentions and missing scores are counted explicitly. If
+    judgements exist, also writes combined_scores.{jsonl,csv} and oversight.json
+    and adds judge, disagreement and oversight sections.
     """
     from liverswat_bench.reporting import ReportError, load_scored_run, write_report
 
     try:
         run = load_scored_run(results)
-        paths = write_report(run, output_dir or results / "report")
+        paths = write_report(
+            run, output_dir or results / "report", _combine_settings(policy, min_judges)
+        )
     except ReportError as exc:
         typer.echo(f"error: {exc}", err=True)
         raise typer.Exit(EXIT_INVALID) from exc
@@ -304,6 +377,16 @@ def compare(
     output_dir: Annotated[
         Path, typer.Option(help="Where to write comparison.{json,csv,md}.")
     ] = Path("results/comparison"),
+    policy: Annotated[
+        str,
+        typer.Option(
+            help="Rule/judge combination policy: rules_first_review_on_disagreement "
+            "(default) or rules_first. Rule scores are never overridden."
+        ),
+    ] = "rules_first_review_on_disagreement",
+    min_judges: Annotated[
+        int, typer.Option(min=1, help="Judges that must score a dimension for consensus.")
+    ] = 2,
 ) -> None:
     """Descriptive side-by-side comparison of scored runs.
 
@@ -321,7 +404,7 @@ def compare(
         raise typer.Exit(EXIT_INVALID)
     try:
         runs = [load_scored_run(d) for d in run_dirs]
-        paths = write_comparison(runs, output_dir)
+        paths = write_comparison(runs, output_dir, _combine_settings(policy, min_judges))
     except ReportError as exc:
         typer.echo(f"error: {exc}", err=True)
         raise typer.Exit(EXIT_INVALID) from exc

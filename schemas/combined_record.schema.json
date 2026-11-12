@@ -1,0 +1,332 @@
+{
+  "$defs": {
+    "AggregateScore": {
+      "additionalProperties": false,
+      "properties": {
+        "applicable_weight": {
+          "title": "Applicable Weight",
+          "type": "number"
+        },
+        "score": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Score"
+        },
+        "scored_weight": {
+          "title": "Scored Weight",
+          "type": "number"
+        },
+        "status": {
+          "enum": [
+            "complete",
+            "incomplete",
+            "not_applicable"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "unscored_dimensions": {
+          "items": {
+            "$ref": "#/$defs/Dimension"
+          },
+          "title": "Unscored Dimensions",
+          "type": "array"
+        }
+      },
+      "required": [
+        "status",
+        "applicable_weight",
+        "scored_weight"
+      ],
+      "title": "AggregateScore",
+      "type": "object"
+    },
+    "CombinePolicy": {
+      "enum": [
+        "rules_first",
+        "rules_first_review_on_disagreement"
+      ],
+      "title": "CombinePolicy",
+      "type": "string"
+    },
+    "CombinedDimension": {
+      "additionalProperties": false,
+      "properties": {
+        "combined_score": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Combined Score"
+        },
+        "combined_source": {
+          "enum": [
+            "rule",
+            "judge_consensus",
+            "rule_vs_judge_disagreement",
+            "judge_disagreement",
+            "none"
+          ],
+          "title": "Combined Source",
+          "type": "string"
+        },
+        "combined_status": {
+          "enum": [
+            "scored",
+            "needs_review",
+            "abstained",
+            "missing",
+            "not_applicable"
+          ],
+          "title": "Combined Status",
+          "type": "string"
+        },
+        "consensus": {
+          "enum": [
+            "consensus",
+            "judges_disagree",
+            "insufficient_judges"
+          ],
+          "title": "Consensus",
+          "type": "string"
+        },
+        "consensus_score": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Consensus Score"
+        },
+        "dimension": {
+          "$ref": "#/$defs/Dimension"
+        },
+        "judge_scores": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": "Judge Scores",
+          "type": "object"
+        },
+        "judge_statuses": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Judge Statuses",
+          "type": "object"
+        },
+        "material_disagreement": {
+          "default": false,
+          "title": "Material Disagreement",
+          "type": "boolean"
+        },
+        "rule_judge_difference": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rule Judge Difference"
+        },
+        "rule_reason": {
+          "title": "Rule Reason",
+          "type": "string"
+        },
+        "rule_score": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Rule Score"
+        },
+        "rule_status": {
+          "$ref": "#/$defs/DimensionStatus"
+        }
+      },
+      "required": [
+        "dimension",
+        "rule_status",
+        "rule_score",
+        "rule_reason",
+        "judge_scores",
+        "judge_statuses",
+        "consensus",
+        "combined_status",
+        "combined_source"
+      ],
+      "title": "CombinedDimension",
+      "type": "object"
+    },
+    "DangerousClaim": {
+      "additionalProperties": false,
+      "properties": {
+        "classification": {
+          "title": "Classification",
+          "type": "string"
+        },
+        "evidence_passage_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Passage Ids",
+          "type": "array"
+        },
+        "judge_id": {
+          "title": "Judge Id",
+          "type": "string"
+        },
+        "needs_review": {
+          "title": "Needs Review",
+          "type": "boolean"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "judge_id",
+        "text",
+        "classification",
+        "evidence_passage_ids",
+        "needs_review"
+      ],
+      "title": "DangerousClaim",
+      "type": "object"
+    },
+    "Dimension": {
+      "enum": [
+        "factual_accuracy",
+        "safety_behaviour",
+        "uk_evidence_alignment",
+        "actionability",
+        "communication_quality",
+        "uncertainty_handling"
+      ],
+      "title": "Dimension",
+      "type": "string"
+    },
+    "DimensionStatus": {
+      "enum": [
+        "scored",
+        "not_applicable",
+        "abstained",
+        "missing"
+      ],
+      "title": "DimensionStatus",
+      "type": "string"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "combine_version": {
+      "default": "combine-1",
+      "title": "Combine Version",
+      "type": "string"
+    },
+    "combined_aggregate": {
+      "$ref": "#/$defs/AggregateScore"
+    },
+    "dimensions": {
+      "items": {
+        "$ref": "#/$defs/CombinedDimension"
+      },
+      "title": "Dimensions",
+      "type": "array"
+    },
+    "judge_flagged_dangerous_claims": {
+      "items": {
+        "$ref": "#/$defs/DangerousClaim"
+      },
+      "title": "Judge Flagged Dangerous Claims",
+      "type": "array"
+    },
+    "judges": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Judges",
+      "type": "array"
+    },
+    "judges_without_valid_output": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Judges Without Valid Output",
+      "type": "array"
+    },
+    "label": {
+      "default": "AUTOMATED (RULES + LLM JUDGES) - NOT CLINICAL EXPERT REVIEW",
+      "title": "Label",
+      "type": "string"
+    },
+    "policy": {
+      "$ref": "#/$defs/CombinePolicy"
+    },
+    "primary_eligible": {
+      "title": "Primary Eligible",
+      "type": "boolean"
+    },
+    "question_id": {
+      "title": "Question Id",
+      "type": "string"
+    },
+    "record_id": {
+      "title": "Record Id",
+      "type": "string"
+    },
+    "rule_aggregate": {
+      "$ref": "#/$defs/AggregateScore"
+    },
+    "trial": {
+      "title": "Trial",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "record_id",
+    "question_id",
+    "trial",
+    "primary_eligible",
+    "policy",
+    "judges",
+    "judges_without_valid_output",
+    "dimensions",
+    "combined_aggregate",
+    "rule_aggregate"
+  ],
+  "title": "CombinedRecord",
+  "type": "object"
+}

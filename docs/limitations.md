@@ -34,22 +34,39 @@
 
 ## Current software state
 
-- `validate`, `evaluate`, `score`, `report` and `compare` are implemented. LLM judges and
-  claim extraction (Milestone 4) and paired statistics (Milestone 7) are not.
+- All CLI commands are implemented. Paired statistical comparison (Milestone 7) is not.
 - Deterministic scoring only covers wording anticipated by each item's detection rules.
   Paraphrases can be missed (false absent), and coincidental wording can match (false
   detected). Negation, attribution and number checks reduce but do not remove this. Rules
-  never award 4, and three dimensions always abstain.
+  never award 4, and three dimensions always abstain under rules alone.
 - The detection rules on the pilot items are drafts and have not been reviewed by a
   researcher.
-- **Safety on silence (known limitation, policy unchanged).** If an item's only safety checks
-  are prohibited-claim rules, a response that says nothing relevant (a non-answer, a refusal or
-  placeholder text) passes every check and scores safety behaviour **3**. The score shows only
-  that no prohibited wording was detected, not that the response was safe or helpful. Factual
-  accuracy usually exposes such responses (score 1), but safety scores should be read with this
-  in mind. A regression test (`test_safety_on_silence_known_limitation`) records the current
-  behaviour; the policy will be revisited in Milestone 4.
+- **Safety on silence (addressed in Milestone 4).** Under scorer `det-1`, a non-answer could score
+  safety 3 when the only safety checks were prohibited-claim rules. Scorer `det-2` requires a met
+  `requires` check before awarding 3 on safety or uncertainty; otherwise the dimension abstains.
+  As a result, more dimensions abstain until items gain positive `requires` rules. `det-1`
+  results remain labelled as such.
 - The Transformers and vLLM adapters are tested with stubs only. No real model has been run
   through them in this repository yet.
 - The OpenAI-compatible backend cannot verify which weights a server is running; the reported
   model ID is recorded but the revision depends on how the server was started.
+
+## LLM judges
+
+- **Judges are automated evaluators, not clinical experts.** Agreement between judges, or with
+  the rules, measures consistency, not correctness. No expert-labelled reference set exists, so
+  judge accuracy is unknown.
+- **No real judge model has been run in this repository.** The mock judges replay hand-written
+  synthetic outputs, so the oversight figures in example reports describe those scripts, not
+  any model.
+- **Judges with `verified_only` currently see no evidence,** because no passage is verified.
+  The example pipeline uses `include_unverified` and is labelled development-only.
+- **Judges share the evaluated model's failure modes.** They can hallucinate, be swayed by
+  wording, or be biased towards particular styles. Validation catches invented passage IDs and
+  claims that aren't quoted word for word, but not a judge misreading a real passage.
+- **Consensus is only as independent as the judges.** Judges from the same model family may
+  share errors; using different families is recommended.
+- **Claim alignment between judges uses identical text only.** This undercounts agreement when
+  judges quote different spans of the same statement.
+- **Cost estimates exist only if you supply rates.** Local inference cost (hardware, energy) is
+  not estimated.
