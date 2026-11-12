@@ -227,3 +227,5 @@ results/*
 !results/README.md
 # Raw source snapshots (page copies); only hashes go in the verification log.
 data/evidence/snapshots/
+# Milestone 5 real-model pilot results are committed for reproducibility and audit.
+!results/m5-real-model-pilot/
