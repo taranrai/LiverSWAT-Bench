@@ -413,5 +413,46 @@ def compare(
         typer.echo(f"{name}: {path}")
 
 
+@app.command("check-docs")
+def check_docs(
+    paths: Annotated[
+        list[Path] | None,
+        typer.Argument(help="Markdown files to check. Default: README, dataset card and docs/."),
+    ] = None,
+    max_words: Annotated[
+        int, typer.Option(min=5, help="Advisory sentence length limit in words.")
+    ] = 25,
+    strict: Annotated[
+        bool,
+        typer.Option(help="Exit with code 1 if a deterministic rule (discouraged term) fails."),
+    ] = False,
+) -> None:
+    """Run the advisory documentation style check (ASD-STE100 principles).
+
+    The check reports undefined abbreviations, discouraged terms, long sentences and
+    ambiguous wording. Only discouraged terms are deterministic. The check does not
+    certify ASD-STE100 compliance.
+    """
+    from liverswat_bench.docs_check import check_files, default_paths
+
+    files = paths or default_paths(Path.cwd())
+    missing = [f for f in files if not f.is_file()]
+    if missing:
+        typer.echo(f"error: file not found: {missing[0]}", err=True)
+        raise typer.Exit(EXIT_INVALID)
+    findings = check_files(files, max_words)
+    for finding in findings:
+        typer.echo(str(finding))
+    counts: dict[str, int] = {}
+    for f in findings:
+        counts[f.rule] = counts.get(f.rule, 0) + 1
+    errors = sum(f.enforceable for f in findings)
+    typer.echo(f"Checked {len(files)} file(s). Findings by rule: {counts or 'none'}.")
+    typer.echo("This check is advisory. It does not certify ASD-STE100 compliance.")
+    if strict and errors:
+        typer.echo(f"error: {errors} deterministic finding(s) (discouraged terms).", err=True)
+        raise typer.Exit(EXIT_INVALID)
+
+
 if __name__ == "__main__":
     app()
