@@ -34,5 +34,9 @@
 
 ## Current software state
 
-- Only `liverswat validate` is implemented. Evaluation, judging, comparison and reporting are
-  planned for later milestones.
+- `liverswat validate` and `liverswat evaluate` (response collection) are implemented. Scoring,
+  judging, comparison and reporting are planned for later milestones.
+- The Transformers and vLLM adapters are tested with stubs only. No real model has been run
+  through them in this repository yet.
+- The OpenAI-compatible backend cannot verify which weights a server is running; the reported
+  model ID is recorded but the revision depends on how the server was started.

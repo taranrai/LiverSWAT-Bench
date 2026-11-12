@@ -1,0 +1,22 @@
+# EXAMPLE CONFIG - same model as qwen2.5-0.5b-instruct-hf, served offline with vLLM.
+# Pin model_revision and record the licence before any research run (see the -hf config).
+config_id: qwen2.5-0.5b-instruct-vllm
+model_name: Qwen/Qwen2.5-0.5B-Instruct
+model_revision: main
+allow_unpinned_revision: true
+backend: vllm
+licence: null
+open_weight: true
+osi_approved_licence: null
+parameter_count: 0.5B
+quantisation: null
+system_prompt: null
+prompt_template: "{question}"
+generation:
+  temperature: 0.0
+  top_p: 1.0
+  max_new_tokens: 512
+  seed: 0
+backend_options:
+  dtype: auto
+  gpu_memory_utilization: 0.85

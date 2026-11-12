@@ -36,10 +36,19 @@ moves through these statuses:
 A `verified` source must have a `url`, `date_accessed` and `licence`, and the validator enforces
 this. Synthetic (demo) sources can never be `verified`.
 
-**Current state:** every real source in the registry is `unverified`. The entries were recorded
-without browsing and must be checked before any item relies on them. No passages have been
-recorded for real sources yet. BSG, BASL, British Liver Trust and UKHSA documents have not been
-added yet, to avoid recording titles or URLs from memory.
+**Current state:** every real source in the registry is `unverified`.
+
+- The NICE entries were recorded without browsing and must be checked before any item relies on
+  them. Automated access to nice.org.uk returned HTTP 403, so NICE checks need a browser.
+- The UK CMO low-risk drinking guideline was retrieved by machine in the Milestone 2 pilot. Its
+  metadata and seven verbatim passages are recorded but still await a researcher's check; see
+  [pilots/uk_cmo_low_risk_drinking.md](pilots/uk_cmo_low_risk_drinking.md).
+- BSG, BASL, British Liver Trust and UKHSA documents have not been added yet, to avoid recording
+  titles or URLs from memory.
+
+**Machine retrieval is not verification.** An automated fetch can pre-fill a record and check
+that passage text appears in a downloaded document. Only a researcher who has checked the
+official document sets `verified`.
 
 ## Passage records
 

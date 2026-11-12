@@ -1,0 +1,449 @@
+{
+  "$defs": {
+    "Backend": {
+      "enum": [
+        "mock",
+        "transformers",
+        "vllm",
+        "openai_compatible"
+      ],
+      "title": "Backend",
+      "type": "string"
+    },
+    "DataProvenance": {
+      "additionalProperties": false,
+      "properties": {
+        "dataset_path": {
+          "title": "Dataset Path",
+          "type": "string"
+        },
+        "dataset_sha256": {
+          "title": "Dataset Sha256",
+          "type": "string"
+        },
+        "evidence_level": {
+          "$ref": "#/$defs/EvidenceLevel"
+        },
+        "primary_eligible": {
+          "title": "Primary Eligible",
+          "type": "boolean"
+        },
+        "synthetic": {
+          "title": "Synthetic",
+          "type": "boolean"
+        },
+        "track": {
+          "$ref": "#/$defs/Track"
+        },
+        "verification_status": {
+          "$ref": "#/$defs/VerificationStatus"
+        }
+      },
+      "required": [
+        "synthetic",
+        "track",
+        "verification_status",
+        "evidence_level",
+        "primary_eligible",
+        "dataset_path",
+        "dataset_sha256"
+      ],
+      "title": "DataProvenance",
+      "type": "object"
+    },
+    "EvidenceLevel": {
+      "enum": [
+        "A",
+        "B",
+        "C"
+      ],
+      "title": "EvidenceLevel",
+      "type": "string"
+    },
+    "GenerationParams": {
+      "additionalProperties": false,
+      "properties": {
+        "max_new_tokens": {
+          "default": 512,
+          "exclusiveMinimum": 0,
+          "title": "Max New Tokens",
+          "type": "integer"
+        },
+        "seed": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": 0,
+          "title": "Seed"
+        },
+        "stop": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Stop",
+          "type": "array"
+        },
+        "temperature": {
+          "default": 0.0,
+          "minimum": 0.0,
+          "title": "Temperature",
+          "type": "number"
+        },
+        "top_p": {
+          "default": 1.0,
+          "exclusiveMinimum": 0.0,
+          "maximum": 1.0,
+          "title": "Top P",
+          "type": "number"
+        }
+      },
+      "title": "GenerationParams",
+      "type": "object"
+    },
+    "ModelInfo": {
+      "additionalProperties": false,
+      "properties": {
+        "backend": {
+          "$ref": "#/$defs/Backend"
+        },
+        "config_id": {
+          "title": "Config Id",
+          "type": "string"
+        },
+        "licence": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Licence"
+        },
+        "model_name": {
+          "title": "Model Name",
+          "type": "string"
+        },
+        "model_revision": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Model Revision"
+        },
+        "open_weight": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Open Weight"
+        },
+        "osi_approved_licence": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Osi Approved Licence"
+        },
+        "parameter_count": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Parameter Count"
+        },
+        "quantisation": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Quantisation"
+        },
+        "revision_pinned": {
+          "title": "Revision Pinned",
+          "type": "boolean"
+        },
+        "served_model_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Served Model Id"
+        }
+      },
+      "required": [
+        "config_id",
+        "model_name",
+        "model_revision",
+        "revision_pinned",
+        "backend",
+        "licence",
+        "open_weight",
+        "osi_approved_licence",
+        "parameter_count",
+        "quantisation"
+      ],
+      "title": "ModelInfo",
+      "type": "object"
+    },
+    "PromptInfo": {
+      "additionalProperties": false,
+      "properties": {
+        "messages": {
+          "items": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "title": "Messages",
+          "type": "array"
+        },
+        "prompt_template": {
+          "title": "Prompt Template",
+          "type": "string"
+        },
+        "system_prompt": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "System Prompt"
+        }
+      },
+      "required": [
+        "system_prompt",
+        "prompt_template",
+        "messages"
+      ],
+      "title": "PromptInfo",
+      "type": "object"
+    },
+    "ResponseInfo": {
+      "additionalProperties": false,
+      "properties": {
+        "completion_tokens": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Completion Tokens"
+        },
+        "finish_reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Finish Reason"
+        },
+        "prompt_tokens": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Prompt Tokens"
+        },
+        "text": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Text"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "title": "ResponseInfo",
+      "type": "object"
+    },
+    "Timing": {
+      "additionalProperties": false,
+      "properties": {
+        "completed_at": {
+          "format": "date-time",
+          "title": "Completed At",
+          "type": "string"
+        },
+        "latency_s": {
+          "title": "Latency S",
+          "type": "number"
+        },
+        "started_at": {
+          "format": "date-time",
+          "title": "Started At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "started_at",
+        "completed_at",
+        "latency_s"
+      ],
+      "title": "Timing",
+      "type": "object"
+    },
+    "Track": {
+      "description": "Which score an item may contribute to.",
+      "enum": [
+        "primary",
+        "exploratory",
+        "experimental",
+        "demo"
+      ],
+      "title": "Track",
+      "type": "string"
+    },
+    "VerificationStatus": {
+      "enum": [
+        "draft",
+        "source_pending",
+        "source_verified",
+        "disputed",
+        "expert_review_required",
+        "retired"
+      ],
+      "title": "VerificationStatus",
+      "type": "string"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "benchmark_version": {
+      "title": "Benchmark Version",
+      "type": "string"
+    },
+    "data_provenance": {
+      "$ref": "#/$defs/DataProvenance"
+    },
+    "error": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Error"
+    },
+    "experiment_id": {
+      "title": "Experiment Id",
+      "type": "string"
+    },
+    "generation": {
+      "$ref": "#/$defs/GenerationParams"
+    },
+    "model": {
+      "$ref": "#/$defs/ModelInfo"
+    },
+    "prompt": {
+      "$ref": "#/$defs/PromptInfo"
+    },
+    "question_id": {
+      "title": "Question Id",
+      "type": "string"
+    },
+    "record_id": {
+      "title": "Record Id",
+      "type": "string"
+    },
+    "response": {
+      "$ref": "#/$defs/ResponseInfo"
+    },
+    "schema_version": {
+      "const": "1",
+      "default": "1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "ok",
+        "error"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "timing": {
+      "$ref": "#/$defs/Timing"
+    },
+    "trial": {
+      "minimum": 0,
+      "title": "Trial",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "record_id",
+    "experiment_id",
+    "question_id",
+    "benchmark_version",
+    "trial",
+    "data_provenance",
+    "model",
+    "prompt",
+    "generation",
+    "response",
+    "status",
+    "timing"
+  ],
+  "title": "ResponseRecord",
+  "type": "object"
+}

@@ -1,0 +1,25 @@
+# EXAMPLE CONFIG - any local server exposing /v1/chat/completions,
+# e.g. `vllm serve Qwen/Qwen2.5-0.5B-Instruct --revision <SHA>`.
+# The server decides which weights are loaded, so record the revision it serves.
+# For a hosted provider, set api_key_env to the NAME of an environment variable.
+# Never put the key itself in this file.
+config_id: local-openai-compatible
+model_name: Qwen/Qwen2.5-0.5B-Instruct
+model_revision: null
+backend: openai_compatible
+licence: null
+open_weight: true
+osi_approved_licence: null
+parameter_count: 0.5B
+quantisation: null
+system_prompt: null
+prompt_template: "{question}"
+generation:
+  temperature: 0.0
+  top_p: 1.0
+  max_new_tokens: 512
+  seed: 0
+backend_options:
+  base_url: http://localhost:8000/v1
+  api_key_env: null
+  timeout_s: 120

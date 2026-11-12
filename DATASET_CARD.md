@@ -19,7 +19,7 @@ guidance.
 | Split / track | Items | Notes |
 | --- | --- | --- |
 | primary | 0 | No source-verified items yet. |
-| exploratory | 0 | |
+| exploratory | 3 | Pilot candidates (`data/pilot/`), `source_pending`; UK CMO alcohol guideline; evidence awaiting human verification. |
 | experimental | 0 | |
 | demo | 5 | Synthetic. Fictional sources. For software testing only. |
 

@@ -1,0 +1,15 @@
+# Deterministic mock model: no GPU, no download, no API. For testing the harness only.
+config_id: mock
+model_name: liverswat/mock-deterministic
+backend: mock
+licence: MIT (part of this repository)
+open_weight: null
+osi_approved_licence: null
+system_prompt: null
+prompt_template: "{question}"
+generation:
+  temperature: 0.0
+  top_p: 1.0
+  max_new_tokens: 256
+  seed: 0
+notes: Mock outputs are placeholder text and must never be reported as model results.

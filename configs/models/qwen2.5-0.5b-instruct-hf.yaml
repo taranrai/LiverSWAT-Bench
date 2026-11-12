@@ -1,0 +1,26 @@
+# EXAMPLE CONFIG - fill in before any research run.
+# TODO before research use:
+#   1. Pin model_revision to the 40-character commit SHA from the Hugging Face model page
+#      and remove allow_unpinned_revision.
+#   2. Record the licence from the model card, and whether it is OSI-approved.
+#      Open weights do not imply an open-source licence.
+config_id: qwen2.5-0.5b-instruct-hf
+model_name: Qwen/Qwen2.5-0.5B-Instruct
+model_revision: main
+allow_unpinned_revision: true
+backend: transformers
+licence: null
+open_weight: true
+osi_approved_licence: null
+parameter_count: 0.5B
+quantisation: null
+system_prompt: null
+prompt_template: "{question}"
+generation:
+  temperature: 0.0
+  top_p: 1.0
+  max_new_tokens: 512
+  seed: 0
+backend_options:
+  device_map: auto
+  torch_dtype: auto
