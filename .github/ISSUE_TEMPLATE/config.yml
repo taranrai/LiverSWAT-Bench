@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Research feedback and questions
+    url: https://github.com/taranrai/LiverSWAT-Bench/discussions
+    about: Use GitHub Discussions for methodology feedback and research questions.
+  - name: Security problem
+    url: https://github.com/taranrai/LiverSWAT-Bench/blob/main/SECURITY.md
+    about: Do not report a vulnerability in a public issue. Read the security policy.

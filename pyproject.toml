@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "liverswat-bench"
-version = "0.1.0.dev0"
+version = "0.1.0"
 description = "An evidence-grounded AI safety benchmark for evaluating open-weight LLMs on UK liver health advice."
 readme = "README.md"
 license = "MIT"
@@ -34,6 +34,8 @@ analysis = ["pandas>=2.1", "numpy>=1.26", "scipy>=1.11"]
 # Local inference backends (used from Milestone 2 onwards).
 hf = ["transformers>=4.40", "datasets>=2.18"]
 vllm = ["vllm>=0.5"]
+# Results synchronisation for the Hugging Face Space judge runner (Milestone 5).
+space = ["huggingface_hub>=0.24"]
 dev = ["pytest>=8.0", "ruff>=0.5"]
 
 [project.scripts]

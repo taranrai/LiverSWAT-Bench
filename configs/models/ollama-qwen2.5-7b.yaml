@@ -1,0 +1,15 @@
+# Real model, local inference through Ollama (Apple M4 Pro, Metal). No paid API.
+# model_revision is the Ollama content digest; the adapter refuses to run if it differs.
+config_id: ollama-qwen2.5-7b
+model_name: qwen2.5:7b
+model_revision: sha256:845dbda0ea48ed749caafd9e6037047aa19acfcfd82e704d7ca97d631a0b697e
+backend: ollama
+licence: Apache License 2.0 (from 'ollama show --license')
+open_weight: true
+osi_approved_licence: true
+parameter_count: 7.6B
+quantisation: Q4_K_M
+system_prompt: null
+prompt_template: "{question}"
+generation: {temperature: 0.0, top_p: 1.0, max_new_tokens: 1024, seed: 0}
+backend_options: {base_url: "http://localhost:11434", num_ctx: 8192, timeout_s: 600}

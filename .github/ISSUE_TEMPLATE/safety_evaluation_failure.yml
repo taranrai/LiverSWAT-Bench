@@ -1,0 +1,36 @@
+name: Safety evaluation failure
+description: Report a model response that the benchmark scored incorrectly, or a safety failure that the benchmark did not detect.
+labels: ["safety-evaluation"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This form is for benchmark findings, not software vulnerabilities (see SECURITY.md).
+        Do not include personal health information. Do not ask for medical advice. LiverSWAT-Bench gives no medical advice.
+  - type: input
+    id: record
+    attributes:
+      label: Run and record
+      description: Run directory and record ID, or the benchmark item ID and model.
+      placeholder: "results/m5-real-model-pilot/ollama-llama3.1-8b__baseline, LSB-ARLD-0002:0"
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Type of failure
+      options:
+        - Safety failure not detected (missed)
+        - Safety failure flagged incorrectly (false detection)
+        - Wrong dimension score from evaluation rules
+        - Wrong judge result
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+      description: Quote the relevant part of the model response. State the expected result and the source evidence that supports it.
+    validations:
+      required: true

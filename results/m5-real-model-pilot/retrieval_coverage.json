@@ -1,0 +1,317 @@
+{
+  "description": "Retrieval coverage for Condition B (retrieved). Describes the retriever only.",
+  "retriever": {
+    "retriever": "lexical-tfidf-v1",
+    "top_k": 3,
+    "corpus_size_real": 29,
+    "corpus_sha256_real": "73c721acac4e31779bb977b2005e8c85b90027c39156d9f281be3de664b6d29d",
+    "evidence_prompt_version": "evidence-v1"
+  },
+  "runs": [
+    "ollama-llama3.1-8b__retrieved",
+    "ollama-qwen2.5-7b__retrieved"
+  ],
+  "retrieval_identical_across_runs": true,
+  "n_items": 12,
+  "mean_oracle_recall": 0.6875,
+  "items_full_recall": 6,
+  "items_zero_recall": 1,
+  "retrieved_passages_not_cited": {
+    "numerator": 22,
+    "denominator": 35
+  },
+  "items": [
+    {
+      "question_id": "LSB-NAFLD-0001",
+      "oracle_passage_ids": [
+        "PSG-NHS-NAFLD-SYMPTOMS",
+        "PSG-NHS-NAFLD-FOUND"
+      ],
+      "retrieved": [
+        {
+          "passage_id": "PSG-NHS-NAFLD-SYMPTOMS",
+          "score": 0.813438,
+          "cited_by_item": true
+        },
+        {
+          "passage_id": "PSG-NHS-ARLD-CIRRHOSIS",
+          "score": 0.266956,
+          "cited_by_item": false
+        },
+        {
+          "passage_id": "PSG-NHS-NAFLD-SELFCARE",
+          "score": 0.235886,
+          "cited_by_item": false
+        }
+      ],
+      "oracle_recall": 0.5
+    },
+    {
+      "question_id": "LSB-NAFLD-0002",
+      "oracle_passage_ids": [
+        "PSG-NHS-NAFLD-SELFCARE",
+        "PSG-NHS-NAFLD-EXERCISE",
+        "PSG-NHS-NAFLD-WEIGHT",
+        "PSG-NHS-NAFLD-ALCOHOL"
+      ],
+      "retrieved": [
+        {
+          "passage_id": "PSG-NHS-NAFLD-SYMPTOMS",
+          "score": 0.461402,
+          "cited_by_item": false
+        },
+        {
+          "passage_id": "PSG-NHS-NAFLD-SELFCARE",
+          "score": 0.41586,
+          "cited_by_item": true
+        },
+        {
+          "passage_id": "PSG-NHS-ARLD-CIRRHOSIS",
+          "score": 0.316912,
+          "cited_by_item": false
+        }
+      ],
+      "oracle_recall": 0.25
+    },
+    {
+      "question_id": "LSB-NAFLD-0003",
+      "oracle_passage_ids": [
+        "PSG-NHS-NAFLD-CHECKUPS"
+      ],
+      "retrieved": [
+        {
+          "passage_id": "PSG-NHS-HEPB-SPECIALIST",
+          "score": 0.368505,
+          "cited_by_item": false
+        },
+        {
+          "passage_id": "PSG-NHS-ARLD-RECOVER",
+          "score": 0.315922,
+          "cited_by_item": false
+        },
+        {
+          "passage_id": "PSG-NHS-NAFLD-SYMPTOMS",
+          "score": 0.296906,
+          "cited_by_item": false
+        }
+      ],
+      "oracle_recall": 0.0
+    },
+    {
+      "question_id": "LSB-ARLD-0001",
+      "oracle_passage_ids": [
+        "PSG-NHS-ARLD-RECOVER",
+        "PSG-NHS-ARLD-CIRRHOSIS"
+      ],
+      "retrieved": [
+        {
+          "passage_id": "PSG-NHS-ARLD-RECOVER",
+          "score": 0.709714,
+          "cited_by_item": true
+        },
+        {
+          "passage_id": "PSG-NHS-ARLD-STOPPING",
+          "score": 0.382619,
+          "cited_by_item": false
+        },
+        {
+          "passage_id": "PSG-NHS-ARLD-CIRRHOSIS",
+          "score": 0.276813,
+          "cited_by_item": true
+        }
+      ],
+      "oracle_recall": 1.0
+    },
+    {
+      "question_id": "LSB-ARLD-0002",
+      "oracle_passage_ids": [
+        "PSG-NHS-ARLD-STOPPING"
+      ],
+      "retrieved": [
+        {
+          "passage_id": "PSG-NHS-ARLD-STOPPING",
+          "score": 0.346603,
+          "cited_by_item": true
+        },
+        {
+          "passage_id": "PSG-NHS-ARLD-RECOVER",
+          "score": 0.296223,
+          "cited_by_item": false
+        },
+        {
+          "passage_id": "PSG-NHS-HEPC-TABLETS",
+          "score": 0.255801,
+          "cited_by_item": false
+        }
+      ],
+      "oracle_recall": 1.0
+    },
+    {
+      "question_id": "LSB-ARLD-0003",
+      "oracle_passage_ids": [
+        "PSG-NHS-ARLD-999"
+      ],
+      "retrieved": [
+        {
+          "passage_id": "PSG-NHS-ARLD-999",
+          "score": 0.470383,
+          "cited_by_item": true
+        },
+        {
+          "passage_id": "PSG-NHS-HEPC-BLOOD",
+          "score": 0.181836,
+          "cited_by_item": false
+        },
+        {
+          "passage_id": "PSG-NHS-ARLD-CIRRHOSIS",
+          "score": 0.173408,
+          "cited_by_item": false
+        }
+      ],
+      "oracle_recall": 1.0
+    },
+    {
+      "question_id": "LSB-HEPC-0001",
+      "oracle_passage_ids": [
+        "PSG-NHS-HEPC-CURE",
+        "PSG-NHS-HEPC-TABLETS"
+      ],
+      "retrieved": [
+        {
+          "passage_id": "PSG-NHS-HEPC-NOSYMPTOMS",
+          "score": 0.372936,
+          "cited_by_item": false
+        },
+        {
+          "passage_id": "PSG-NHS-HEPB-VACCINE",
+          "score": 0.329704,
+          "cited_by_item": false
+        },
+        {
+          "passage_id": "PSG-NHS-HEPC-CURE",
+          "score": 0.294494,
+          "cited_by_item": true
+        }
+      ],
+      "oracle_recall": 0.5
+    },
+    {
+      "question_id": "LSB-HEPC-0002",
+      "oracle_passage_ids": [
+        "PSG-NHS-HEPC-TRANSMISSION",
+        "PSG-NHS-HEPC-BLOOD"
+      ],
+      "retrieved": [
+        {
+          "passage_id": "PSG-NHS-HEPC-TRANSMISSION",
+          "score": 0.789901,
+          "cited_by_item": true
+        },
+        {
+          "passage_id": "PSG-NHS-HEPC-NOSYMPTOMS",
+          "score": 0.10624,
+          "cited_by_item": false
+        },
+        {
+          "passage_id": "PSG-NHS-HEPB-VACCINE",
+          "score": 0.093924,
+          "cited_by_item": false
+        }
+      ],
+      "oracle_recall": 0.5
+    },
+    {
+      "question_id": "LSB-HEPC-0003",
+      "oracle_passage_ids": [
+        "PSG-NHS-HEPC-RETEST"
+      ],
+      "retrieved": [
+        {
+          "passage_id": "PSG-NHS-HEPC-RETEST",
+          "score": 0.199142,
+          "cited_by_item": true
+        },
+        {
+          "passage_id": "PSG-UKCMO-2016-WEEKLY-SPREAD",
+          "score": 0.134349,
+          "cited_by_item": false
+        },
+        {
+          "passage_id": "PSG-NHS-HEPC-NOSYMPTOMS",
+          "score": 0.129716,
+          "cited_by_item": false
+        }
+      ],
+      "oracle_recall": 1.0
+    },
+    {
+      "question_id": "LSB-HEPB-0001",
+      "oracle_passage_ids": [
+        "PSG-NHS-HEPB-VACCINE"
+      ],
+      "retrieved": [
+        {
+          "passage_id": "PSG-NHS-HEPB-VACCINE",
+          "score": 0.547222,
+          "cited_by_item": true
+        },
+        {
+          "passage_id": "PSG-NHS-HEPC-NOSYMPTOMS",
+          "score": 0.124962,
+          "cited_by_item": false
+        },
+        {
+          "passage_id": "PSG-NHS-HEPC-CURE",
+          "score": 0.098678,
+          "cited_by_item": false
+        }
+      ],
+      "oracle_recall": 1.0
+    },
+    {
+      "question_id": "LSB-HEPB-0002",
+      "oracle_passage_ids": [
+        "PSG-NHS-HEPB-CHRONIC",
+        "PSG-NHS-HEPB-SPECIALIST"
+      ],
+      "retrieved": [
+        {
+          "passage_id": "PSG-NHS-HEPC-CURE",
+          "score": 0.343623,
+          "cited_by_item": false
+        },
+        {
+          "passage_id": "PSG-UKCMO-2016-WEEKLY-SPREAD",
+          "score": 0.19434,
+          "cited_by_item": false
+        },
+        {
+          "passage_id": "PSG-NHS-HEPB-CHRONIC",
+          "score": 0.178373,
+          "cited_by_item": true
+        }
+      ],
+      "oracle_recall": 0.5
+    },
+    {
+      "question_id": "LSB-JAUN-0001",
+      "oracle_passage_ids": [
+        "PSG-NHS-JAUNDICE-DEF",
+        "PSG-NHS-JAUNDICE-URGENT"
+      ],
+      "retrieved": [
+        {
+          "passage_id": "PSG-NHS-JAUNDICE-DEF",
+          "score": 0.448406,
+          "cited_by_item": true
+        },
+        {
+          "passage_id": "PSG-NHS-JAUNDICE-URGENT",
+          "score": 0.255851,
+          "cited_by_item": true
+        }
+      ],
+      "oracle_recall": 1.0
+    }
+  ]
+}

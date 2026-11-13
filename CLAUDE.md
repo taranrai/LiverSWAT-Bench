@@ -55,3 +55,77 @@ rules below take precedence over any default behaviour.
 - Approval to push once does not carry over to later changes; ask again each
   time.
 - Do not add, remove or modify Git remotes.
+
+## Technical writing standard (ASD-STE100 principles)
+
+Documentation follows ASD-STE100 Simplified Technical English principles. Formal compliance has
+not been certified.
+
+ASD-STE100 is a controlled-language specification. Do not claim that the project is fully
+ASD-STE100 compliant without checking the applicable specification, dictionary and writing rules.
+Do not invent ASD-STE100 approved vocabulary.
+
+### Scope
+
+Apply these principles to all new and substantially revised:
+
+- README files
+- technical documentation
+- benchmark specifications
+- dataset cards
+- model evaluation reports
+- research reports
+- CLI help text
+- user-facing error messages
+- pull request descriptions
+- Claude Code explanations and summaries
+
+Do not change Python identifiers, external API names, exact source quotations or legally required
+text (for example, licence attribution statements) only to meet this policy.
+
+### Writing rules
+
+1. Use short, direct sentences. Prefer approximately 20 words or fewer where practical. Do not
+   split a sentence if the split changes the technical meaning.
+2. Prefer active voice.
+3. Use one main instruction or idea per sentence.
+4. Use consistent technical terms (see the terminology list).
+5. Use imperative verbs for procedures.
+6. Avoid unnecessary jargon.
+7. Explain technical abbreviations at first use.
+8. Use numbered steps for procedures.
+9. State explicit conditions and expected outcomes.
+10. Avoid ambiguous pronouns and vague references.
+11. Avoid idioms, metaphors and promotional language.
+12. Distinguish facts, assumptions, limitations and recommendations.
+13. Use measurable statements instead of subjective claims.
+14. Keep safety warnings clear and specific.
+15. Use consistent names for benchmark components.
+
+### Terminology
+
+Use these terms consistently:
+
+- `benchmark item`
+- `source evidence`
+- `verified evidence`
+- `model response`
+- `evaluation rule`
+- `judge model`
+- `judge result`
+- `abstention`
+- `safety failure`
+- `unsupported claim`
+- `human review`
+- `experimental result`
+
+Do not use "clinically validated" to describe evidence that has only been checked against
+published guidance.
+
+Do not use "safe model" when the evidence supports only a limited benchmark result.
+
+### Documentation check
+
+`liverswat check-docs` runs an advisory style check. It reports undefined abbreviations,
+discouraged terms, long sentences and potentially ambiguous wording. The check is advisory. It
+does not certify ASD-STE100 compliance.

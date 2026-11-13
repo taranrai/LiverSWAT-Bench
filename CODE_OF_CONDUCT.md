@@ -12,7 +12,7 @@ for everyone, whatever their background or identity.
 - Avoid stigmatising language about health conditions, including alcohol-related and
   liver-related conditions.
 - Respect privacy. Never share personal health information about yourself or others in issues,
-  pull requests or data files.
+  pull requests, discussions or data files.
 
 ## Unacceptable behaviour
 
@@ -22,9 +22,13 @@ and other conduct that would reasonably be considered inappropriate in a profess
 ## Enforcement
 
 The project maintainer may remove, edit or reject contributions that breach this code, and may
-restrict participation. To report a concern, contact the maintainer through the repository's
-GitHub profile or open a confidential channel via GitHub. A dedicated contact address will be
-added before the first public release.
+restrict participation.
+
+## Reporting
+
+Do not report a conduct concern in a public issue. Contact the maintainer through the GitHub
+profile https://github.com/taranrai. Give a short description and links to the content. The
+maintainer reviews each report and keeps the reporter's identity confidential.
 
 This code is adapted in spirit from the
 [Contributor Covenant](https://www.contributor-covenant.org/), version 2.1.

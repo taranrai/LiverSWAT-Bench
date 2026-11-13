@@ -1,0 +1,316 @@
+{
+  "note": "Agreement between automated evaluators measures consistency, not clinical correctness. No expert-labelled reference set exists yet.",
+  "canonical_prompt_version": "v2",
+  "per_judge": {
+    "ollama-mistral-nemo-12b": {
+      "n_judgements": 24,
+      "by_status": {
+        "ok": 23,
+        "invalid_output": 1
+      },
+      "invalid_or_error_rate": 0.0417,
+      "mean_retries": 0.0833,
+      "n_validation_issues": 34,
+      "abstention_by_dimension": {
+        "factual_accuracy": {
+          "n_applicable": 11,
+          "abstained": 0.0,
+          "invalid": 0.1818
+        },
+        "safety_behaviour": {
+          "n_applicable": 11,
+          "abstained": 0.0,
+          "invalid": 0.0
+        },
+        "uk_evidence_alignment": {
+          "n_applicable": 11,
+          "abstained": 0.0,
+          "invalid": 0.0
+        },
+        "actionability": {
+          "n_applicable": 11,
+          "abstained": 0.0,
+          "invalid": 0.0
+        },
+        "communication_quality": {
+          "n_applicable": 11,
+          "abstained": 0.0,
+          "invalid": 0.0
+        },
+        "uncertainty_handling": {
+          "n_applicable": 11,
+          "abstained": 0.0,
+          "invalid": 0.0
+        }
+      },
+      "latency_s": {
+        "n": 24,
+        "mean": 33.359158,
+        "median": 28.639584,
+        "max": 73.023992
+      },
+      "tokens": {
+        "prompt": 54766,
+        "completion": 20228
+      },
+      "estimated_cost": null,
+      "cost_note": "not available (no cost rates configured)",
+      "claims": {
+        "by_classification": {
+          "supported": 13,
+          "unsupported": 12
+        },
+        "n_needs_review": 15,
+        "n_potentially_dangerous": 2
+      }
+    },
+    "ollama-phi4-14b": {
+      "n_judgements": 12,
+      "by_status": {
+        "ok": 12
+      },
+      "invalid_or_error_rate": 0.0,
+      "mean_retries": 0.0,
+      "n_validation_issues": 22,
+      "abstention_by_dimension": {
+        "factual_accuracy": {
+          "n_applicable": 12,
+          "abstained": 0.0,
+          "invalid": 0.0
+        },
+        "safety_behaviour": {
+          "n_applicable": 12,
+          "abstained": 0.0,
+          "invalid": 0.0
+        },
+        "uk_evidence_alignment": {
+          "n_applicable": 12,
+          "abstained": 0.0,
+          "invalid": 0.0
+        },
+        "actionability": {
+          "n_applicable": 12,
+          "abstained": 0.0,
+          "invalid": 0.0
+        },
+        "communication_quality": {
+          "n_applicable": 12,
+          "abstained": 0.0,
+          "invalid": 0.0
+        },
+        "uncertainty_handling": {
+          "n_applicable": 12,
+          "abstained": 0.0,
+          "invalid": 0.0
+        }
+      },
+      "latency_s": {
+        "n": 12,
+        "mean": 61.926474,
+        "median": 61.787653,
+        "max": 80.643052
+      },
+      "tokens": {
+        "prompt": 24176,
+        "completion": 12292
+      },
+      "estimated_cost": null,
+      "cost_note": "not available (no cost rates configured)",
+      "claims": {
+        "by_classification": {
+          "supported": 25,
+          "unsupported": 20,
+          "contradicted": 2,
+          "unverifiable": 1
+        },
+        "n_needs_review": 23,
+        "n_potentially_dangerous": 2
+      }
+    }
+  },
+  "judge_vs_judge": {
+    "ollama-mistral-nemo-12b vs ollama-phi4-14b": {
+      "by_dimension": {
+        "factual_accuracy": {
+          "n": 9,
+          "exact_agreement": 0.6667,
+          "within_one": 1.0,
+          "mean_abs_difference": 0.3333
+        },
+        "safety_behaviour": {
+          "n": 11,
+          "exact_agreement": 0.8182,
+          "within_one": 1.0,
+          "mean_abs_difference": 0.1818
+        },
+        "uk_evidence_alignment": {
+          "n": 11,
+          "exact_agreement": 0.6364,
+          "within_one": 1.0,
+          "mean_abs_difference": 0.3636
+        },
+        "actionability": {
+          "n": 11,
+          "exact_agreement": 0.4545,
+          "within_one": 1.0,
+          "mean_abs_difference": 0.5455
+        },
+        "communication_quality": {
+          "n": 11,
+          "exact_agreement": 1.0,
+          "within_one": 1.0,
+          "mean_abs_difference": 0.0
+        },
+        "uncertainty_handling": {
+          "n": 11,
+          "exact_agreement": 0.5455,
+          "within_one": 0.9091,
+          "mean_abs_difference": 0.5455
+        }
+      },
+      "scored_vs_abstained_agreement": 0.9697,
+      "n_dimension_judgements": 66,
+      "claim_classification": {
+        "n_aligned_claims": 6,
+        "classification_agreement": 1.0,
+        "n_unaligned_claims": 59,
+        "note": "Claims are aligned only when their normalised text is identical."
+      }
+    }
+  },
+  "rule_vs_judge": {
+    "ollama-mistral-nemo-12b": {
+      "factual_accuracy": {
+        "n": 7,
+        "exact_agreement": 0.5714,
+        "within_one": 1.0,
+        "mean_abs_difference": 0.4286,
+        "mean_judge_minus_rule": 0.4286
+      },
+      "safety_behaviour": {
+        "n": 3,
+        "exact_agreement": 0.0,
+        "within_one": 0.3333,
+        "mean_abs_difference": 2.3333,
+        "mean_judge_minus_rule": 2.3333
+      },
+      "uk_evidence_alignment": {
+        "n": 0,
+        "exact_agreement": null,
+        "within_one": null,
+        "mean_abs_difference": null,
+        "mean_judge_minus_rule": null
+      },
+      "actionability": {
+        "n": 0,
+        "exact_agreement": null,
+        "within_one": null,
+        "mean_abs_difference": null,
+        "mean_judge_minus_rule": null
+      },
+      "communication_quality": {
+        "n": 0,
+        "exact_agreement": null,
+        "within_one": null,
+        "mean_abs_difference": null,
+        "mean_judge_minus_rule": null
+      },
+      "uncertainty_handling": {
+        "n": 0,
+        "exact_agreement": null,
+        "within_one": null,
+        "mean_abs_difference": null,
+        "mean_judge_minus_rule": null
+      }
+    },
+    "ollama-phi4-14b": {
+      "factual_accuracy": {
+        "n": 10,
+        "exact_agreement": 0.3,
+        "within_one": 1.0,
+        "mean_abs_difference": 0.7,
+        "mean_judge_minus_rule": 0.7
+      },
+      "safety_behaviour": {
+        "n": 3,
+        "exact_agreement": 0.0,
+        "within_one": 0.3333,
+        "mean_abs_difference": 2.6667,
+        "mean_judge_minus_rule": 2.6667
+      },
+      "uk_evidence_alignment": {
+        "n": 0,
+        "exact_agreement": null,
+        "within_one": null,
+        "mean_abs_difference": null,
+        "mean_judge_minus_rule": null
+      },
+      "actionability": {
+        "n": 0,
+        "exact_agreement": null,
+        "within_one": null,
+        "mean_abs_difference": null,
+        "mean_judge_minus_rule": null
+      },
+      "communication_quality": {
+        "n": 0,
+        "exact_agreement": null,
+        "within_one": null,
+        "mean_abs_difference": null,
+        "mean_judge_minus_rule": null
+      },
+      "uncertainty_handling": {
+        "n": 0,
+        "exact_agreement": null,
+        "within_one": null,
+        "mean_abs_difference": null,
+        "mean_judge_minus_rule": null
+      }
+    }
+  },
+  "stability_across_repeats": {
+    "ollama-mistral-nemo-12b": {
+      "n_dimension_groups": 0,
+      "identical_across_repeats": null,
+      "claim_classification": {
+        "n_aligned_claims": 0,
+        "classification_agreement": null,
+        "n_unaligned_claims": 0,
+        "note": "Claims are aligned only when their normalised text is identical."
+      },
+      "note": "no prompt version with 2+ valid repeats (use --repeats; invalid outputs are excluded)"
+    },
+    "ollama-phi4-14b": {
+      "n_dimension_groups": 0,
+      "identical_across_repeats": null,
+      "claim_classification": {
+        "n_aligned_claims": 0,
+        "classification_agreement": null,
+        "n_unaligned_claims": 0,
+        "note": "Claims are aligned only when their normalised text is identical."
+      },
+      "note": "no prompt version with 2+ valid repeats (use --repeats; invalid outputs are excluded)"
+    }
+  },
+  "prompt_sensitivity": {
+    "ollama-mistral-nemo-12b": {
+      "canonical_prompt_version": "v2",
+      "variants": {
+        "v2-alt": {
+          "n": 64,
+          "exact_agreement": 0.8906,
+          "within_one": 1.0,
+          "mean_abs_difference": 0.1094,
+          "abstention_flips": 1,
+          "n_compared": 66
+        }
+      },
+      "note": null
+    },
+    "ollama-phi4-14b": {
+      "canonical_prompt_version": "v2",
+      "variants": {},
+      "note": "no prompt variants run (use --prompt-variant)"
+    }
+  }
+}

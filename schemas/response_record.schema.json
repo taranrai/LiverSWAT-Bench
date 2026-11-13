@@ -5,7 +5,8 @@
         "mock",
         "transformers",
         "vllm",
-        "openai_compatible"
+        "openai_compatible",
+        "ollama"
       ],
       "title": "Backend",
       "type": "string"
@@ -59,6 +60,112 @@
       ],
       "title": "EvidenceLevel",
       "type": "string"
+    },
+    "EvidenceSupplied": {
+      "additionalProperties": false,
+      "description": "Which source evidence the model received (evidence experiment conditions).",
+      "properties": {
+        "condition": {
+          "default": "baseline",
+          "enum": [
+            "baseline",
+            "retrieved",
+            "oracle"
+          ],
+          "title": "Condition",
+          "type": "string"
+        },
+        "corpus_sha256": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Corpus Sha256"
+        },
+        "corpus_size": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Corpus Size"
+        },
+        "evidence_prompt_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Evidence Prompt Version"
+        },
+        "oracle_passage_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Oracle Passage Ids",
+          "type": "array"
+        },
+        "oracle_recall": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Oracle Recall"
+        },
+        "passage_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Passage Ids",
+          "type": "array"
+        },
+        "passages_verified": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Passages Verified",
+          "type": "array"
+        },
+        "retrieval_scores": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "title": "Retrieval Scores",
+          "type": "object"
+        },
+        "retriever": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Retriever"
+        }
+      },
+      "title": "EvidenceSupplied",
+      "type": "object"
     },
     "GenerationParams": {
       "additionalProperties": false,
@@ -382,6 +489,9 @@
       ],
       "default": null,
       "title": "Error"
+    },
+    "evidence": {
+      "$ref": "#/$defs/EvidenceSupplied"
     },
     "experiment_id": {
       "title": "Experiment Id",

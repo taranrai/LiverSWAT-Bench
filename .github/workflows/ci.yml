@@ -27,6 +27,8 @@ jobs:
         run: |
           ruff check .
           ruff format --check .
+      - name: Documentation check (deterministic rules strict, others advisory)
+        run: liverswat check-docs --strict
       - name: Validate benchmark data
         run: liverswat validate
       - name: Test

@@ -16,7 +16,8 @@ from typing import Any
 import yaml
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
-PINNED_REVISION = re.compile(r"^[0-9a-f]{40}$")
+#: A Hugging Face commit SHA, or an Ollama content digest.
+PINNED_REVISION = re.compile(r"^([0-9a-f]{40}|sha256:[0-9a-f]{64})$")
 QUESTION_PLACEHOLDER = "{question}"
 FORBIDDEN_OPTION_KEYS = {"api_key", "token", "password", "secret"}
 
@@ -30,6 +31,7 @@ class Backend(StrEnum):
     TRANSFORMERS = "transformers"
     VLLM = "vllm"
     OPENAI_COMPATIBLE = "openai_compatible"
+    OLLAMA = "ollama"
 
 
 class _Strict(BaseModel):
@@ -82,13 +84,14 @@ class ModelConfig(_Strict):
                 f"credentials must not be stored in configs (found {sorted(leaked)}); "
                 "use backend_options.api_key_env to name an environment variable"
             )
-        if self.backend in (Backend.TRANSFORMERS, Backend.VLLM):
+        if self.backend in (Backend.TRANSFORMERS, Backend.VLLM, Backend.OLLAMA):
             if not self.model_revision:
                 raise ValueError(f"{self.backend} configs require model_revision")
             if not self.revision_pinned and not self.allow_unpinned_revision:
                 raise ValueError(
-                    f"model_revision {self.model_revision!r} is not a 40-character commit "
-                    "SHA; pin it, or set allow_unpinned_revision: true (recorded in outputs)"
+                    f"model_revision {self.model_revision!r} is not a 40-character commit SHA "
+                    "or an Ollama 'sha256:<64 hex>' digest; pin it, or set "
+                    "allow_unpinned_revision: true (recorded in outputs)"
                 )
         if self.backend == Backend.OPENAI_COMPATIBLE and not self.backend_options.get("base_url"):
             raise ValueError("openai_compatible configs require backend_options.base_url")

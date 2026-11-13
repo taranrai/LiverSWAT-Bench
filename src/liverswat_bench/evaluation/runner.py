@@ -26,9 +26,16 @@ from liverswat_bench.datasets.schema import (
     VerificationStatus,
 )
 from liverswat_bench.datasets.validation import validate_dataset
+from liverswat_bench.evaluation.conditions import (
+    EVIDENCE_PROMPT_VERSION,
+    EvidenceCondition,
+    build_condition_messages,
+)
 from liverswat_bench.evaluation.environment import capture_environment, sha256_file
 from liverswat_bench.evaluation.records import (
+    MOCK_LABEL,
     NOT_CLINICAL_LABEL,
+    REAL_LABEL,
     SYNTHETIC_LABEL,
     UNVERIFIED_LABEL,
     DataProvenance,
@@ -39,6 +46,8 @@ from liverswat_bench.evaluation.records import (
     RunManifest,
     Timing,
 )
+from liverswat_bench.evidence.registry import EvidenceRegistry
+from liverswat_bench.evidence.retrieval import RETRIEVER_ID, LexicalRetriever
 from liverswat_bench.io import read_jsonl_models
 from liverswat_bench.models import AdapterError, ModelAdapter, create_adapter
 from liverswat_bench.models.config import ModelConfig, load_model_config
@@ -66,12 +75,14 @@ def is_primary_eligible(item: BenchmarkItem) -> bool:
     )
 
 
-def status_labels(items: Sequence[BenchmarkItem]) -> list[str]:
+def status_labels(items: Sequence[BenchmarkItem], backend: str | None = None) -> list[str]:
     labels = [NOT_CLINICAL_LABEL]
     if any(i.synthetic for i in items):
         labels.insert(0, SYNTHETIC_LABEL)
     if any(not is_primary_eligible(i) for i in items):
         labels.append(UNVERIFIED_LABEL)
+    if backend is not None:
+        labels.append(MOCK_LABEL if backend == "mock" else REAL_LABEL)
     return labels
 
 
@@ -117,9 +128,19 @@ def run_evaluation(
     adapter_factory: Callable[[ModelConfig], ModelAdapter] = create_adapter,
     command: list[str] | None = None,
     progress: Callable[[str], None] | None = None,
+    evidence_condition: str = "baseline",
+    retrieval_top_k: int = 3,
 ) -> RunResult:
     if trials < 1:
         raise EvaluationError("trials must be at least 1")
+    try:
+        condition = EvidenceCondition(evidence_condition)
+    except ValueError as exc:
+        raise EvaluationError(
+            f"unknown evidence condition {evidence_condition!r}; use baseline, retrieved or oracle"
+        ) from exc
+    if retrieval_top_k < 1:
+        raise EvaluationError("retrieval_top_k must be at least 1")
     if limit is not None and limit < 1:
         raise EvaluationError("limit must be at least 1")
 
@@ -132,7 +153,14 @@ def run_evaluation(
         raise EvaluationError("no items to evaluate (all retired, or the dataset is empty)")
 
     started = _now()
-    experiment_id = experiment_id or default_experiment_id(config, dataset_path, started)
+    if experiment_id is None:
+        experiment_id = default_experiment_id(config, dataset_path, started)
+        if condition != EvidenceCondition.BASELINE:
+            experiment_id = f"{experiment_id}_{condition.value}"
+    registry, _ = EvidenceRegistry.load(source_files, passage_files)
+    retrievers = {
+        flag: LexicalRetriever.from_registry(registry, synthetic=flag) for flag in (False, True)
+    }
     if not EXPERIMENT_ID_PATTERN.match(experiment_id):
         raise EvaluationError(f"invalid experiment id {experiment_id!r}")
     run_dir = output_dir / experiment_id
@@ -170,7 +198,14 @@ def run_evaluation(
                     dataset_path=str(dataset_path),
                     dataset_sha256=dataset_sha,
                 )
-                messages = config.build_messages(item.question)
+                messages, evidence = build_condition_messages(
+                    config,
+                    item,
+                    condition,
+                    registry,
+                    retrievers[item.synthetic],
+                    retrieval_top_k,
+                )
                 for trial in range(trials):
                     base_seed = config.generation.seed
                     params = config.generation.model_copy(
@@ -203,6 +238,7 @@ def run_evaluation(
                         trial=trial,
                         data_provenance=provenance,
                         model=model_info.model_copy(update={"served_model_id": served}),
+                        evidence=evidence,
                         prompt=PromptInfo(
                             system_prompt=config.system_prompt,
                             prompt_template=config.prompt_template,
@@ -223,7 +259,7 @@ def run_evaluation(
 
     manifest = RunManifest(
         experiment_id=experiment_id,
-        status_labels=status_labels(items),
+        status_labels=status_labels(items, config.backend.value),
         started_at=started,
         completed_at=_now(),
         model_config_path=str(model_config_path),
@@ -245,6 +281,16 @@ def run_evaluation(
         n_primary_eligible_items=sum(is_primary_eligible(i) for i in items),
         environment=capture_environment(repo_root or Path.cwd(), backend_info),
         command=command,
+        evidence_condition=condition.value,
+        retriever=None
+        if condition != EvidenceCondition.RETRIEVED
+        else {
+            "retriever": RETRIEVER_ID,
+            "top_k": retrieval_top_k,
+            "corpus_size_real": len(retrievers[False].passages),
+            "corpus_sha256_real": retrievers[False].corpus_sha256,
+            "evidence_prompt_version": EVIDENCE_PROMPT_VERSION,
+        },
     )
     (run_dir / "manifest.json").write_text(manifest.model_dump_json(indent=2) + "\n")
     return RunResult(output_dir=run_dir, responses_path=responses_path, manifest=manifest)

@@ -1,0 +1,21 @@
+# Real judge model, local inference through Ollama. Automated evaluator, not a clinical expert.
+# model_revision is the Ollama content digest; the adapter refuses to run if it differs.
+# evidence_policy include_unverified: no source evidence is verified yet (development use only).
+judge_id: ollama-phi4-14b
+prompt_version: v2
+evidence_policy: include_unverified
+max_retries: 2
+cost: {currency: null, input_per_1k_tokens: null, output_per_1k_tokens: null}
+notes: Local inference; no per-token cost. Licence from 'ollama show --license'.
+model:
+  config_id: ollama-phi4-14b
+  model_name: phi4:14b
+  model_revision: sha256:ac896e5b8b34a1f4efa7b14d7520725140d5512484457fab45d2a4ea14c69dba
+  backend: ollama
+  licence: MIT License (Microsoft)
+  open_weight: true
+  osi_approved_licence: true
+  parameter_count: 14.7B
+  quantisation: Q4_K_M
+  generation: {temperature: 0.0, top_p: 1.0, max_new_tokens: 2048, seed: 0}
+  backend_options: {base_url: "http://localhost:11434", num_ctx: 8192, format: json, timeout_s: 900}

@@ -1,0 +1,38 @@
+name: Benchmark item review
+description: Review a benchmark item, its expected claims or its evaluation rules.
+labels: ["item-review"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A review in an issue is a contribution to the human review. It does not change the verification status by itself.
+        State your relevant expertise if you want it recorded. Do not include personal health information.
+  - type: input
+    id: question-id
+    attributes:
+      label: Benchmark item ID
+      placeholder: "LSB-HEPC-0001"
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks done
+      options:
+        - label: The cited passage occurs in the official source.
+        - label: The question is clear and has a UK context.
+        - label: The expected claims follow directly from the passage (Level A).
+        - label: The contradicted and prohibited claims are correct.
+        - label: The safety requirements are correct.
+        - label: The evaluation rules detect the intended wording and do not match unrelated text.
+  - type: textarea
+    id: findings
+    attributes:
+      label: Findings
+      description: List each problem and the change you recommend.
+    validations:
+      required: true
+  - type: input
+    id: expertise
+    attributes:
+      label: Relevant expertise (optional)

@@ -135,6 +135,16 @@ def evaluate(
     limit: Annotated[
         int | None, typer.Option(min=1, help="Only evaluate the first N active items.")
     ] = None,
+    evidence_condition: Annotated[
+        str,
+        typer.Option(
+            help="baseline (question only), retrieved (lexical retrieval over the registry) "
+            "or oracle (the item's own cited passages)."
+        ),
+    ] = "baseline",
+    retrieval_top_k: Annotated[
+        int, typer.Option(min=1, help="Passages supplied in the retrieved condition.")
+    ] = 3,
 ) -> None:
     """Run a model on a benchmark dataset and store its responses as JSONL.
 
@@ -170,6 +180,8 @@ def evaluate(
             trials=trials,
             limit=limit,
             command=["liverswat", *sys.argv[1:]],
+            evidence_condition=evidence_condition,
+            retrieval_top_k=retrieval_top_k,
         )
     except (ConfigError, EvaluationError, AdapterError) as exc:
         typer.echo(f"error: {exc}", err=True)
@@ -179,6 +191,7 @@ def evaluate(
     for label in m.status_labels:
         typer.echo(f"*** {label} ***")
     typer.echo(f"Experiment:  {m.experiment_id}")
+    typer.echo(f"Evidence:    {m.evidence_condition}")
     typer.echo(
         f"Model:       {m.model_settings['model_name']} "
         f"(revision {m.model_settings['model_revision'] or 'n/a'}, "
@@ -310,11 +323,15 @@ def score(
     typer.echo(f"Scores:   {result.scores_path}")
 
 
-def _combine_settings(policy: str, min_judges: int):
+def _combine_settings(policy: str, min_judges: int, canonical_prompt_version: str = "v1"):
     from liverswat_bench.evaluation.combine import CombinePolicy, CombineSettings
 
     try:
-        return CombineSettings(policy=CombinePolicy(policy), min_judges=min_judges)
+        return CombineSettings(
+            policy=CombinePolicy(policy),
+            min_judges=min_judges,
+            canonical_prompt_version=canonical_prompt_version,
+        )
     except ValueError as exc:
         typer.echo(f"error: unknown policy {policy!r}", err=True)
         raise typer.Exit(EXIT_INVALID) from exc
@@ -342,6 +359,9 @@ def report(
     min_judges: Annotated[
         int, typer.Option(min=1, help="Judges that must score a dimension for consensus.")
     ] = 2,
+    canonical_prompt_version: Annotated[
+        str, typer.Option(help="Judge prompt version used for combination (for example v2).")
+    ] = "v1",
 ) -> None:
     """Write summary.json, item_scores.csv, dimension_summary.csv and report.md for a run.
 
@@ -355,7 +375,9 @@ def report(
     try:
         run = load_scored_run(results)
         paths = write_report(
-            run, output_dir or results / "report", _combine_settings(policy, min_judges)
+            run,
+            output_dir or results / "report",
+            _combine_settings(policy, min_judges, canonical_prompt_version),
         )
     except ReportError as exc:
         typer.echo(f"error: {exc}", err=True)
@@ -387,6 +409,9 @@ def compare(
     min_judges: Annotated[
         int, typer.Option(min=1, help="Judges that must score a dimension for consensus.")
     ] = 2,
+    canonical_prompt_version: Annotated[
+        str, typer.Option(help="Judge prompt version used for combination (for example v2).")
+    ] = "v1",
 ) -> None:
     """Descriptive side-by-side comparison of scored runs.
 
@@ -404,13 +429,292 @@ def compare(
         raise typer.Exit(EXIT_INVALID)
     try:
         runs = [load_scored_run(d) for d in run_dirs]
-        paths = write_comparison(runs, output_dir, _combine_settings(policy, min_judges))
+        paths = write_comparison(
+            runs, output_dir, _combine_settings(policy, min_judges, canonical_prompt_version)
+        )
     except ReportError as exc:
         typer.echo(f"error: {exc}", err=True)
         raise typer.Exit(EXIT_INVALID) from exc
     typer.echo(f"Compared {len(runs)} run(s).")
     for name, path in paths.items():
         typer.echo(f"{name}: {path}")
+
+
+@app.command("check-docs")
+def check_docs(
+    paths: Annotated[
+        list[Path] | None,
+        typer.Argument(help="Markdown files to check. Default: README, dataset card and docs/."),
+    ] = None,
+    max_words: Annotated[
+        int, typer.Option(min=5, help="Advisory sentence length limit in words.")
+    ] = 25,
+    strict: Annotated[
+        bool,
+        typer.Option(help="Exit with code 1 if a deterministic rule (discouraged term) fails."),
+    ] = False,
+) -> None:
+    """Run the advisory documentation style check (ASD-STE100 principles).
+
+    The check reports undefined abbreviations, discouraged terms, long sentences and
+    ambiguous wording. Only discouraged terms are deterministic. The check does not
+    certify ASD-STE100 compliance.
+    """
+    from liverswat_bench.docs_check import check_files, default_paths
+
+    files = paths or default_paths(Path.cwd())
+    missing = [f for f in files if not f.is_file()]
+    if missing:
+        typer.echo(f"error: file not found: {missing[0]}", err=True)
+        raise typer.Exit(EXIT_INVALID)
+    findings = check_files(files, max_words)
+    for finding in findings:
+        typer.echo(str(finding))
+    counts: dict[str, int] = {}
+    for f in findings:
+        counts[f.rule] = counts.get(f.rule, 0) + 1
+    errors = sum(f.enforceable for f in findings)
+    typer.echo(f"Checked {len(files)} file(s). Findings by rule: {counts or 'none'}.")
+    typer.echo("This check is advisory. It does not certify ASD-STE100 compliance.")
+    if strict and errors:
+        typer.echo(f"error: {errors} deterministic finding(s) (discouraged terms).", err=True)
+        raise typer.Exit(EXIT_INVALID)
+
+
+@app.command()
+def pilot(
+    config: Annotated[Path, typer.Option("--config", help="Pilot configuration YAML file.")],
+    summarise_only: Annotated[
+        bool, typer.Option(help="Rebuild the pilot summary from existing run outputs only.")
+    ] = False,
+    judge_only: Annotated[
+        bool,
+        typer.Option(
+            help="Do not run model inference or scoring. Stop if model responses are missing."
+        ),
+    ] = False,
+    dry_run: Annotated[
+        bool, typer.Option(help="List the pending steps. Do not run or write anything.")
+    ] = False,
+) -> None:
+    """Run a pilot: models x evidence conditions, then score, judge, report and summarise.
+
+    Steps with existing outputs are skipped, so an interrupted pilot can resume. An
+    interrupted judge step resumes from its checkpoint. Real model backends run real
+    inference. Check the configuration before you run it.
+    """
+    from liverswat_bench.experiments.pilot import (
+        combine_settings,
+        load_pilot_config,
+        render_pilot_markdown,
+        run_dir_name,
+        run_pilot,
+        summarise_pilot,
+    )
+    from liverswat_bench.models import AdapterError, ConfigError
+    from liverswat_bench.models.config import load_model_config
+
+    try:
+        cfg = load_pilot_config(config)
+    except (OSError, ValueError) as exc:
+        typer.echo(f"error: invalid pilot configuration {config}: {exc}", err=True)
+        raise typer.Exit(EXIT_INVALID) from exc
+    _, source_files, passage_files = discover_files(cfg.data_dir)
+    try:
+        if summarise_only:
+            run_dirs = [
+                cfg.output_dir / run_dir_name(load_model_config(m).config_id, c)
+                for m in cfg.models
+                for c in cfg.conditions
+            ]
+            summary = summarise_pilot(cfg, run_dirs, combine_settings(cfg))
+            import json
+
+            (cfg.output_dir / "pilot_summary.json").write_text(json.dumps(summary, indent=2) + "\n")
+            (cfg.output_dir / "pilot_summary.md").write_text(render_pilot_markdown(summary))
+            typer.echo(f"Summary: {cfg.output_dir / 'pilot_summary.md'}")
+            return
+        result = run_pilot(
+            cfg,
+            source_files=source_files,
+            passage_files=passage_files,
+            log=typer.echo,
+            judge_only=judge_only,
+            dry_run=dry_run,
+        )
+        if dry_run:
+            assert isinstance(result, list)
+            typer.echo(f"Pending steps: {len(result)}")
+            for step in result:
+                typer.echo(f"  {step}")
+    except (ConfigError, AdapterError, RuntimeError, OSError) as exc:
+        typer.echo(f"error: {exc}", err=True)
+        raise typer.Exit(EXIT_INVALID) from exc
+
+
+evidence_app = typer.Typer(
+    help="Source-verification workflow: snapshots, machine text checks and human review log.",
+    no_args_is_help=True,
+)
+app.add_typer(evidence_app, name="evidence")
+
+
+def _registry(data_dir: Path):
+    from liverswat_bench.evidence.registry import EvidenceRegistry
+
+    if not data_dir.is_dir():
+        typer.echo(f"error: data directory not found: {data_dir}", err=True)
+        raise typer.Exit(EXIT_INVALID)
+    _, source_files, passage_files = discover_files(data_dir)
+    registry, _ = EvidenceRegistry.load(source_files, passage_files)
+    return registry, source_files
+
+
+def _log_path(data_dir: Path) -> Path:
+    from liverswat_bench.evidence.verification import LOG_FILENAME
+
+    return (
+        data_dir / "evidence" / LOG_FILENAME
+        if (data_dir / "evidence").is_dir()
+        else (data_dir / LOG_FILENAME)
+    )
+
+
+@evidence_app.command("snapshot")
+def evidence_snapshot(
+    out: Annotated[Path, typer.Option(help="Directory for snapshots (keep out of Git).")],
+    data_dir: Annotated[Path, typer.Option(help="Data directory with the registry.")] = Path(
+        "data"
+    ),
+    source_ids: Annotated[
+        list[str] | None, typer.Option("--source-id", help="Only these sources.")
+    ] = None,
+) -> None:
+    """Download the official URL of each non-synthetic source and extract its text.
+
+    Records the HTTP status, final URL, retrieval time and SHA-256 hash. This command
+    uses the network.
+    """
+    from liverswat_bench.evidence.verification import VerificationError, take_snapshot
+
+    registry, _ = _registry(data_dir)
+    failures = 0
+    for sid, source in sorted(registry.sources.items()):
+        if source.synthetic or not source.url or (source_ids and sid not in source_ids):
+            continue
+        try:
+            meta = take_snapshot(sid, str(source.url), out)
+            typer.echo(f"{sid}: HTTP {meta.http_status}, sha256 {meta.sha256[:12]}...")
+        except VerificationError as exc:
+            failures += 1
+            typer.echo(f"error: {exc}", err=True)
+    if failures:
+        raise typer.Exit(EXIT_INVALID)
+
+
+@evidence_app.command("check")
+def evidence_check(
+    snapshots: Annotated[Path, typer.Option(help="Snapshot directory from 'evidence snapshot'.")],
+    data_dir: Annotated[Path, typer.Option(help="Data directory with the registry.")] = Path(
+        "data"
+    ),
+    record: Annotated[
+        bool, typer.Option(help="Append the machine check results to the verification log.")
+    ] = False,
+) -> None:
+    """Check that each stored passage occurs verbatim in its source snapshot.
+
+    A match is a machine check only. It does not verify the passage. A human review
+    is required before any status can be set to verified.
+    """
+    from liverswat_bench.evidence.verification import append_log, load_snapshots, machine_check
+
+    registry, _ = _registry(data_dir)
+    if not snapshots.is_dir():
+        typer.echo(f"error: snapshot directory not found: {snapshots}", err=True)
+        raise typer.Exit(EXIT_INVALID)
+    entries = machine_check(registry, load_snapshots(snapshots))
+    for e in entries:
+        typer.echo(f"{e.passage_id}: {e.result}")
+    counts = {
+        r: sum(e.result == r for e in entries) for r in ("match", "no_match", "not_checkable")
+    }
+    typer.echo(
+        f"{counts['match']} match, {counts['no_match']} no_match, "
+        f"{counts['not_checkable']} not_checkable. Machine checks do not verify evidence."
+    )
+    if record and entries:
+        log = _log_path(data_dir)
+        append_log(log, entries)
+        typer.echo(f"Recorded {len(entries)} machine check(s) in {log}.")
+
+
+@evidence_app.command("record-review")
+def evidence_record_review(
+    source_id: Annotated[str, typer.Option(help="Source ID that was reviewed.")],
+    reviewer: Annotated[str, typer.Option(help="Name of the human reviewer.")],
+    result: Annotated[str, typer.Option(help="confirmed, rejected or needs_changes.")],
+    passage_id: Annotated[
+        str | None, typer.Option(help="Passage ID. Omit to record a source-level review.")
+    ] = None,
+    notes: Annotated[str | None, typer.Option(help="What was checked, and how.")] = None,
+    data_dir: Annotated[Path, typer.Option(help="Data directory with the registry.")] = Path(
+        "data"
+    ),
+) -> None:
+    """Append a human review to the verification log.
+
+    Run this command only after a person has checked the official source. Do not
+    record a review on the basis of a model statement.
+    """
+    from datetime import UTC, datetime
+
+    from pydantic import ValidationError
+
+    from liverswat_bench.evidence.verification import LogEntry, append_log
+
+    registry, _ = _registry(data_dir)
+    if source_id not in registry.sources:
+        typer.echo(f"error: unknown source ID {source_id!r}", err=True)
+        raise typer.Exit(EXIT_INVALID)
+    if passage_id and registry.passages.get(passage_id, None) is None:
+        typer.echo(f"error: unknown passage ID {passage_id!r}", err=True)
+        raise typer.Exit(EXIT_INVALID)
+    try:
+        entry = LogEntry(
+            timestamp=datetime.now(UTC),
+            source_id=source_id,
+            passage_id=passage_id,
+            check_type="human_review",
+            result=result,
+            performed_by=reviewer,
+            notes=notes,
+        )
+    except ValidationError as exc:
+        typer.echo(f"error: {exc.errors()[0]['msg']}", err=True)
+        raise typer.Exit(EXIT_INVALID) from exc
+    log = _log_path(data_dir)
+    append_log(log, [entry])
+    typer.echo(f"Recorded human review ({result}) for {passage_id or source_id} in {log}.")
+    typer.echo("Update the registry status separately, then run 'liverswat validate'.")
+
+
+@evidence_app.command("status")
+def evidence_status(
+    data_dir: Annotated[Path, typer.Option(help="Data directory with the registry.")] = Path(
+        "data"
+    ),
+) -> None:
+    """Show each passage's registry status, latest machine check and latest human review."""
+    from liverswat_bench.evidence.verification import read_log, summarise_status
+
+    registry, _ = _registry(data_dir)
+    rows = summarise_status(registry, read_log(_log_path(data_dir)))
+    for r in rows:
+        typer.echo(
+            f"{r['passage_id']}: status={r['status']} machine={r['machine_check']} "
+            f"human={r['human_review']}"
+        )
 
 
 if __name__ == "__main__":

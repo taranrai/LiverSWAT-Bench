@@ -1,0 +1,111 @@
+{
+  "schema_version": "1",
+  "experiment_id": "ollama-llama3.1-8b__oracle",
+  "judge_id": "ollama-mistral-nemo-12b",
+  "judge_config_path": "configs/judges/ollama-mistral-nemo-12b.yaml",
+  "judge_config_sha256": "cd360a9e802d8f8c1a8e58891656152ecdd7b3251d961a24d5e66c8ba7c6d24c",
+  "judge_config": {
+    "judge_id": "ollama-mistral-nemo-12b",
+    "model": {
+      "config_id": "ollama-mistral-nemo-12b",
+      "model_name": "mistral-nemo:12b",
+      "model_revision": "sha256:e7e06d107c6c86ed0cf45445f1790720b5092149c4c95f4d965844e9afbfdc89",
+      "allow_unpinned_revision": false,
+      "backend": "ollama",
+      "licence": "Apache License 2.0",
+      "open_weight": true,
+      "osi_approved_licence": true,
+      "parameter_count": "12.2B",
+      "quantisation": "Q4_0",
+      "system_prompt": null,
+      "prompt_template": "{question}",
+      "generation": {
+        "temperature": 0.0,
+        "top_p": 1.0,
+        "max_new_tokens": 2048,
+        "seed": 0,
+        "stop": []
+      },
+      "backend_options": {
+        "base_url": "http://localhost:11434",
+        "num_ctx": 8192,
+        "format": "json",
+        "timeout_s": 900
+      },
+      "notes": null
+    },
+    "prompt_version": "v2",
+    "evidence_policy": "include_unverified",
+    "max_retries": 2,
+    "cost": {
+      "currency": null,
+      "input_per_1k_tokens": null,
+      "output_per_1k_tokens": null
+    },
+    "notes": "Local inference; no per-token cost. Licence from 'ollama show --license'."
+  },
+  "prompt_versions": [
+    "v2"
+  ],
+  "repeats": 1,
+  "status_labels": [
+    "EVIDENCE-GROUNDED, NOT CLINICALLY VALIDATED",
+    "INCLUDES ITEMS THAT ARE NOT SOURCE-VERIFIED - NOT PRIMARY BENCHMARK RESULTS",
+    "REAL MODEL OUTPUTS - EXPERIMENTAL RESULTS",
+    "AUTOMATED LLM-JUDGE ASSESSMENTS - NOT CLINICAL EXPERT REVIEW, NOT VERIFIED EVIDENCE",
+    "JUDGES WERE SHOWN UNVERIFIED EVIDENCE - DEVELOPMENT USE ONLY"
+  ],
+  "started_at": "2026-11-12T23:05:19.177468Z",
+  "completed_at": "2026-11-12T23:10:45.874569Z",
+  "n_judgements": 12,
+  "n_by_status": {
+    "ok": 12
+  },
+  "responses_sha256": "f1e610b5bc5b97b024d816058afac624678fac3baa915ec38dc912697bc4b326",
+  "dataset_sha256": "43c98de9e7d76cb5d8caf05e516d4245c88d2ec144a8353832e214daa01c404c",
+  "registry_files": {
+    "data/evidence/sources.jsonl": "af01ea2f31ced3adfe79e1db89be1061ded9206b62422c4b17d6a8137ec46fa0",
+    "data/examples/demo_sources.jsonl": "3eb241f76c8ef319edc25b5dd1923c86f17ab51b7134fb6430372a89211b1d6e",
+    "data/evidence/passages.jsonl": "69ea9e564eeab3d8f7f8cbb7ed2f80bf8eff95e9065918fb02dd0562342ea949",
+    "data/examples/demo_passages.jsonl": "7079e5ed697a01e4ea9d5217a04d27a81cb3e2733098f9beef28d3fc7d22622b"
+  },
+  "environment": {
+    "liverswat_version": "0.1.0.dev0",
+    "benchmark_format_version": "0.1.0",
+    "python_version": "3.11.15",
+    "platform": "macOS-15.1-arm64-arm-64bit",
+    "machine": "arm64",
+    "processor": "arm",
+    "cpu_count": 14,
+    "git": {
+      "commit": "972a12fdd9df4d3071417b3235c7a55eb86df874",
+      "dirty": true
+    },
+    "libraries": {
+      "pydantic": "2.14.3",
+      "typer": "0.29.1",
+      "pyyaml": "6.0.3"
+    },
+    "backend": {
+      "backend": "ollama",
+      "base_url": "http://localhost:11434",
+      "num_ctx": 8192,
+      "format": "json",
+      "installed_digest": "sha256:e7e06d107c6c86ed0cf45445f1790720b5092149c4c95f4d965844e9afbfdc89",
+      "model_details": {
+        "parent_model": "",
+        "format": "gguf",
+        "family": "llama",
+        "families": [
+          "llama"
+        ],
+        "parameter_size": "12.2B",
+        "quantization_level": "Q4_0",
+        "context_length": 1024000,
+        "embedding_length": 5120,
+        "runner": "ggml"
+      },
+      "ollama_version": "0.40.6"
+    }
+  }
+}

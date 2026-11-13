@@ -39,6 +39,18 @@
   "additionalProperties": false,
   "description": "A single authoritative document in the evidence registry.",
   "properties": {
+    "attribution": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Attribution"
+    },
     "conditions": {
       "items": {
         "type": "string"

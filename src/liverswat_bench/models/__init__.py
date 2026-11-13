@@ -26,6 +26,10 @@ def create_adapter(config: ModelConfig) -> ModelAdapter:
         from liverswat_bench.models.openai_compatible import OpenAICompatibleAdapter
 
         return OpenAICompatibleAdapter(config)
+    if config.backend == Backend.OLLAMA:
+        from liverswat_bench.models.ollama import OllamaAdapter
+
+        return OllamaAdapter(config)
     if config.backend == Backend.TRANSFORMERS:
         from liverswat_bench.models.hf_transformers import TransformersAdapter
 
