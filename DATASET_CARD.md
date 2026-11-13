@@ -3,8 +3,13 @@
 Documentation follows ASD-STE100 Simplified Technical English principles. Formal compliance has
 not been certified.
 
-> **Status: not released.** Do not publish this dataset to Hugging Face until all of these
-> conditions are true:
+> **Research Preview: This benchmark is under active review. The pilot items have not completed
+> source verification or clinical expert validation. Results must not be used to certify the
+> clinical safety of AI systems.**
+
+> **Dataset status: not released.** The GitHub repository is public, so the files listed here
+> are visible. They are not a dataset release. Do not publish this dataset to Hugging Face until
+> all of these conditions are true:
 >
 > 1. The public split contains `source_verified` benchmark items with a confirmed human review.
 > 2. Every stored extract has a licence that permits redistribution with the required attribution.
@@ -19,7 +24,7 @@ to source evidence from UK health organisations. Each benchmark item lists expec
 contradicted claims, prohibited claims, safety requirements, uncertainty requirements and
 evaluation rules.
 
-- **Benchmark version:** 0.1.0 (pre-release)
+- **Benchmark version:** 0.1.0 (research preview, software release only)
 - **Clinical validation status:** not clinically validated. Source evidence is checked against
   published guidance only.
 - **Language and locale:** English, United Kingdom
@@ -55,7 +60,7 @@ published.
 | Organisation | Sources | Stored extracts | Licence | Status |
 | --- | --- | --- | --- | --- |
 | NHS website | 5 | 22 | Open Government Licence (OGL) v3.0 | Machine-checked; human review pending |
-| UK Chief Medical Officers | 1 | 7 | OGL v3.0 | Human review pending |
+| UK Chief Medical Officers | 1 | 7 | OGL v3.0 stated on the GOV.UK page; not confirmed for the PDF | Human review pending, including the licence |
 | National Institute for Health and Care Excellence (NICE) | 5 | 0 | NICE UK Open Content Licence (UK use only) | Candidate entries; no text stored |
 
 Each source records the official URL, the access date, the review date (where shown), the
@@ -79,7 +84,10 @@ licence and the required attribution. The verification log
 - NHS extracts: Information from the NHS website is licensed under the Open Government Licence
   v3.0 (https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/). Each NHS
   extract is "Information from the NHS website, as at 121126".
-- UK Chief Medical Officers extracts: Open Government Licence v3.0 (GOV.UK).
+- UK Chief Medical Officers extracts: the GOV.UK publication page states "All content is
+  available under the Open Government Licence v3.0, except where otherwise stated". The PDF
+  states "© Crown copyright 2016" and has no licence statement. A human check must confirm the
+  licence before a dataset release.
 - NICE content: not stored. The NICE licence covers UK use only.
 
 ## Reproducibility
@@ -94,6 +102,7 @@ licence and the required attribution. The verification log
 See [docs/limitations.md](docs/limitations.md). The main limitations are:
 
 - No benchmark item has a human review.
+- The Milestone 5 pilot is incomplete. See [docs/real-model-pilot.md](docs/real-model-pilot.md).
 - No clinician has reviewed the benchmark items.
 - The benchmark covers questions that guidance answers explicitly. Judgement-dependent questions
   are under-represented.

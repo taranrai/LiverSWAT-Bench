@@ -20,8 +20,9 @@
 
 ## Dataset
 
-- Version 0.1.0 contains no source-verified items. The five demo items are synthetic, cite
-  fictional sources and exist only to test the software.
+- Version 0.1.0 contains no source-verified items. The 15 pilot benchmark items are
+  `source_pending`. The five demo items are synthetic, cite fictional sources and exist only to
+  test the software.
 - Items are written in English and for a UK context. Results may not generalise to other
   languages, health systems or populations.
 - Public benchmark items may enter future training data. A private holdout set (kept outside
@@ -47,7 +48,7 @@
   As a result, more dimensions abstain until items gain positive `requires` rules. `det-1`
   results remain labelled as such.
 - The Transformers and vLLM adapters are tested with stubs only. No real model has been run
-  through them in this repository yet.
+  through them in this repository yet. The Milestone 5 pilot used the Ollama adapter.
 - The OpenAI-compatible backend cannot verify which weights a server is running; the reported
   model ID is recorded but the revision depends on how the server was started.
 
@@ -56,9 +57,9 @@
 - **Judges are automated evaluators, not clinical experts.** Agreement between judges, or with
   the rules, measures consistency, not correctness. No expert-labelled reference set exists, so
   judge accuracy is unknown.
-- **No real judge model has been run in this repository.** The mock judges replay hand-written
-  synthetic outputs, so the oversight figures in example reports describe those scripts, not
-  any model.
+- **Real judge models have run on one evaluated model only.** The Milestone 5 pilot has 84 real
+  judge results, all for `llama3.1:8b`. The mock judges replay hand-written synthetic outputs,
+  so the oversight figures in the example reports describe those scripts, not any model.
 - **Judges with `verified_only` currently see no evidence,** because no passage is verified.
   The example pipeline uses `include_unverified` and is labelled development-only.
 - **Judges share the evaluated model's failure modes.** They can hallucinate, be swayed by
@@ -120,7 +121,8 @@ not been certified.
 ### Judge stage migration
 
 - The judge stage is incomplete: 84 of 168 planned judge results. Judge results for
-  `qwen2.5-7b` are not executed yet.
+  `qwen2.5-7b` are not executed yet. The completed judge results therefore do not give a
+  balanced comparison of the two evaluated models. Do not rank the models from these results.
 - The remaining judge steps will run on a different host: a graphics processing unit (GPU) on a
   Hugging Face Space. The completed steps ran on an Apple M4 Pro laptop. Temperature 0 does not
   guarantee identical output on different hardware. A comparison of the two evaluated models can include a hardware effect.
