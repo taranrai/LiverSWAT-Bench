@@ -229,3 +229,26 @@ results/*
 data/evidence/snapshots/
 # Milestone 5 real-model pilot results are committed for reproducibility and audit.
 !results/m5-real-model-pilot/
+# Judge checkpoints and atomic-write temporary files (the final files are committed).
+results/**/*.partial.jsonl
+results/**/*.partial.meta.json
+results/**/*.tmp
+# Smoke-test judge manifests that record a local scratch path. Kept locally only.
+results/m5-real-model-pilot/judge-smoke-test/llama-oracle-2items/judgements/smoke-*-verified-only.manifest.json
+# Model weights and local model caches. Never commit weights.
+*.gguf
+*.safetensors
+*.ckpt
+*.pt
+*.pth
+*.onnx
+.ollama/
+models_cache/
+# Local credentials, editor and operating system files.
+.env.*
+*.pem
+*.key
+.DS_Store
+.idea/
+.vscode/
+.claude/

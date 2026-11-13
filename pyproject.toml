@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "liverswat-bench"
-version = "0.1.0.dev0"
+version = "0.1.0"
 description = "An evidence-grounded AI safety benchmark for evaluating open-weight LLMs on UK liver health advice."
 readme = "README.md"
 license = "MIT"

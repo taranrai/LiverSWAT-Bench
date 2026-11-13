@@ -5,7 +5,7 @@ evidence-grounded, not clinically validated, and its scores must not be read as
 a certification of clinical safety.
 """
 
-__version__ = "0.1.0.dev0"
+__version__ = "0.1.0"
 
 #: Version of the benchmark data format. Bumped when item semantics change.
 BENCHMARK_VERSION = "0.1.0"

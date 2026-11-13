@@ -1,11 +1,12 @@
 cff-version: 1.2.0
 message: "If you use LiverSWAT-Bench, please cite it using the metadata below."
 title: "LiverSWAT-Bench: Evaluating Safety, Truthfulness and Evidence Alignment of Open-Weight Language Models in UK Liver Health Advice"
+abstract: "LiverSWAT-Bench is an open-source research framework for evaluating the safety, truthfulness, robustness and evidence alignment of language models on UK liver health information tasks. Version 0.1.0 is a research preview. It is not clinically validated."
 type: software
 authors:
   - family-names: Rai
     given-names: Taran
-version: 0.1.0.dev0
+version: 0.1.0
 license: MIT
 repository-code: "https://github.com/taranrai/LiverSWAT-Bench"
 keywords:
