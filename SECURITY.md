@@ -14,7 +14,9 @@ not been certified.
 
 Do not report a vulnerability in a public issue.
 
-1. Contact the maintainer through the GitHub profile https://github.com/taranrai.
+1. Use GitHub private vulnerability reporting: open
+   https://github.com/taranrai/LiverSWAT-Bench/security/advisories/new (or "Report a
+   vulnerability" on the Security tab).
 2. Describe the problem, the affected file or command, and the steps to reproduce it.
 3. Do not include real credentials or personal data in the report.
 

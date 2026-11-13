@@ -13,6 +13,7 @@ The verification workflow is in `docs/evidence-verification.md` and `docs/eviden
 
 **NHS content attribution.** Information from the NHS website is licensed under the Open Government Licence v3.0 (https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/). NHS extracts are "Information from the NHS website, as at 121126".
 
-**UK Chief Medical Officers extracts.** The GOV.UK page footer states the Open Government Licence
-v3.0 "except where otherwise stated". The PDF states Crown copyright and has no licence statement.
-A human check of the licence is pending.
+**UK Chief Medical Officers extracts.** Contains public sector information licensed under the Open
+Government Licence v3.0. The licence check on 13 November 2026 found no exclusion. The check
+record is in `docs/evidence-verification.md`. The `reuse_restrictions` field of the source record
+predates the check.

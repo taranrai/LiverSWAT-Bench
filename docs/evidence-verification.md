@@ -62,11 +62,33 @@ The general policy is in [evidence_policy.md](evidence_policy.md).
 | Source | Licence | Decision |
 | --- | --- | --- |
 | NHS website | Open Government Licence (OGL) v3.0, NHS website terms 3.3 to 3.6 | Store short unchanged extracts with the attribution "Information from the NHS website, as at 121126". Publish the statement "Information from the NHS website is licensed under the Open Government Licence v3.0". |
-| UK Chief Medical Officers (GOV.UK) | OGL v3.0 (GOV.UK page footer) | Store short extracts (Milestone 2 pilot). |
+| UK Chief Medical Officers (GOV.UK) | OGL v3.0 (GOV.UK publication page). Licence check on 13 November 2026: no exclusion found (see below). | Store short unchanged extracts with the attribution "Contains public sector information licensed under the Open Government Licence v3.0." |
 | National Institute for Health and Care Excellence (NICE) | NICE UK Open Content Licence: UK use only. International use needs a permission request. | Do not store NICE text in public files. A public GitHub repository is international. |
 
 The NHS website terms exclude logos, images, third-party content and medical devices from the OGL.
 The repository stores none of these.
+
+### Licence check: UK Chief Medical Officers guidelines (13 November 2026)
+
+The maintainer approved OGL v3.0 as the reuse basis after this check. The check is a record of the
+licence position. It is not legal advice or legal certification. It does not verify the source
+evidence or the benchmark items, which stay `source_pending`.
+
+| Item | Result |
+| --- | --- |
+| Publication page | https://www.gov.uk/government/publications/alcohol-consumption-advice-on-low-risk-drinking |
+| Licence statement on the page | "All content is available under the Open Government Licence v3.0, except where otherwise stated" |
+| Document | https://assets.publishing.service.gov.uk/media/5a80b7ed40f0b623026951db/UK_CMOs__report.pdf |
+| Document hash (SHA-256) | `7ebe010a78c4e66936ac11130df4a1cd74a987438c3a98b8a3687627f240575e` (same as the Milestone 2 snapshot) |
+| Rights statements in the document | "© Crown copyright 2016" (page 11) only |
+| Exclusions or third-party notices | None found on the page or in the extracted document text |
+| Extracts | All 7 stored extracts occur in the document text. All are text by the UK Chief Medical Officers. No extract is from a figure, logo or quoted third-party work. |
+| Attribution | Contains public sector information licensed under the Open Government Licence v3.0. Source: UK Chief Medical Officers' Low Risk Drinking Guidelines, Department of Health, August 2016. |
+
+Method: text search of the page and of the document text (extracted with pypdf) for licence,
+copyright, third-party, permission and reuse statements. Text inside images is not searched.
+The source record in `data/evidence/sources.jsonl` is not changed, to keep the registry hashes
+of the Milestone 5 pilot. Update the record at the human review in Milestone 6.
 
 ## Status on 12 November 2026
 

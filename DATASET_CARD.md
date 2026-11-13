@@ -60,7 +60,7 @@ published.
 | Organisation | Sources | Stored extracts | Licence | Status |
 | --- | --- | --- | --- | --- |
 | NHS website | 5 | 22 | Open Government Licence (OGL) v3.0 | Machine-checked; human review pending |
-| UK Chief Medical Officers | 1 | 7 | OGL v3.0 stated on the GOV.UK page; not confirmed for the PDF | Human review pending, including the licence |
+| UK Chief Medical Officers | 1 | 7 | OGL v3.0 (licence check on 13 November 2026, no exclusion found) | Human review pending |
 | National Institute for Health and Care Excellence (NICE) | 5 | 0 | NICE UK Open Content Licence (UK use only) | Candidate entries; no text stored |
 
 Each source records the official URL, the access date, the review date (where shown), the
@@ -84,10 +84,10 @@ licence and the required attribution. The verification log
 - NHS extracts: Information from the NHS website is licensed under the Open Government Licence
   v3.0 (https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/). Each NHS
   extract is "Information from the NHS website, as at 121126".
-- UK Chief Medical Officers extracts: the GOV.UK publication page states "All content is
-  available under the Open Government Licence v3.0, except where otherwise stated". The PDF
-  states "© Crown copyright 2016" and has no licence statement. A human check must confirm the
-  licence before a dataset release.
+- UK Chief Medical Officers extracts: Contains public sector information licensed under the
+  Open Government Licence v3.0. The GOV.UK publication page states the OGL v3.0. The PDF states
+  "© Crown copyright 2016" and has no exclusion. Check record:
+  [docs/evidence-verification.md](docs/evidence-verification.md).
 - NICE content: not stored. The NICE licence covers UK use only.
 
 ## Reproducibility

@@ -243,8 +243,10 @@ Citation metadata is in [CITATION.cff](CITATION.cff).
 
 - **Code and original annotations:** MIT licence ([LICENSE](LICENSE)).
 - **NHS extracts:** Information from the NHS website is licensed under the Open Government Licence v3.0 (https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/). Each NHS extract is "Information from the NHS website, as at 121126" (12 November 2026).
-- **UK Chief Medical Officers extracts:** the GOV.UK page states the Open Government Licence v3.0
-  "except where otherwise stated". The PDF has no licence statement. A human check is pending.
+- **UK Chief Medical Officers extracts:** Contains public sector information licensed under the
+  Open Government Licence v3.0. The licence check on 13 November 2026 found no exclusion (see
+  [docs/evidence-verification.md](docs/evidence-verification.md)). The check is not legal
+  certification.
 - **NICE content:** not stored.
 
 Third-party content keeps its publisher's terms. Each source record lists its `licence` and
