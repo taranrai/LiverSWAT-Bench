@@ -24,16 +24,22 @@ Benchmark items by verification status: {'source_pending': 12}. Only source_veri
 
 | Run | Judge disagreement | Rule vs judge (material) | Combined abstention or review | Filled by judge consensus |
 | --- | --- | --- | --- | --- |
-| ollama-llama3.1-8b__baseline | not executed | not executed | not executed | not executed |
-| ollama-llama3.1-8b__retrieved | not executed | not executed | not executed | not executed |
-| ollama-llama3.1-8b__oracle | not executed | not executed | not executed | not executed |
+| ollama-llama3.1-8b__baseline | 0.02 (1/64) | 0.20 (2/10) | 0.15 (11/72) | 0.69 (50/72) |
+| ollama-llama3.1-8b__retrieved | 0.00 (0/53) | 0.25 (3/12) | 0.28 (20/72) | 0.56 (40/72) |
+| ollama-llama3.1-8b__oracle | 0.03 (2/71) | 0.13 (2/15) | 0.08 (6/72) | 0.74 (53/72) |
 | ollama-qwen2.5-7b__baseline | not executed | not executed | not executed | not executed |
 | ollama-qwen2.5-7b__retrieved | not executed | not executed | not executed | not executed |
 | ollama-qwen2.5-7b__oracle | not executed | not executed | not executed | not executed |
 
 | Run | Judge | Valid judge results | Abstention | Invalidated | Unsupported claims | Contradicted claims | Claims needing review | Dangerous | Mean latency (s) |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| ollama-llama3.1-8b__baseline | ollama-mistral-nemo-12b | 0.92 (11/12) | 0.00 (0/66) | 0.03 (2/66) | 0.48 (12/25) | 0.00 (0/25) | 0.60 (15/25) | 2 | 36.22 |
+| ollama-llama3.1-8b__baseline | ollama-phi4-14b | 1.00 (12/12) | 0.00 (0/72) | 0.00 (0/72) | 0.42 (20/48) | 0.04 (2/48) | 0.48 (23/48) | 2 | 61.926 |
+| ollama-llama3.1-8b__retrieved | ollama-mistral-nemo-12b | 0.75 (9/12) | 0.00 (0/54) | 0.00 (0/54) | 0.00 (0/9) | 0.00 (0/9) | 0.22 (2/9) | 0 | 36.964 |
+| ollama-llama3.1-8b__retrieved | ollama-phi4-14b | 1.00 (12/12) | 0.01 (1/72) | 0.00 (0/72) | 0.00 (0/16) | 0.00 (0/16) | 0.12 (2/16) | 0 | 39.896 |
+| ollama-llama3.1-8b__oracle | ollama-mistral-nemo-12b | 1.00 (12/12) | 0.00 (0/72) | 0.00 (0/72) | 0.06 (1/16) | 0.00 (0/16) | 0.56 (9/16) | 0 | 27.212 |
+| ollama-llama3.1-8b__oracle | ollama-phi4-14b | 1.00 (12/12) | 0.01 (1/72) | 0.00 (0/72) | 0.00 (0/17) | 0.00 (0/17) | 0.24 (4/17) | 0 | 40.548 |
 
 ## Prompt sensitivity (judge models)
 
-Not executed.
+- ollama-llama3.1-8b__baseline / ollama-mistral-nemo-12b: `v2-alt` vs `v2`: exact agreement 0.89 (n=64), abstention flips 1 (of 66)

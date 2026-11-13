@@ -1,7 +1,7 @@
 {
   "summary_version": "pilot-summary-1",
   "pilot_id": "m5-real-model-pilot",
-  "created_at": "2026-11-12T22:01:57.760131+00:00",
+  "created_at": "2026-11-13T21:19:52.076122+00:00",
   "result_label": "REAL MODEL RESULTS - EXPERIMENTAL RESULTS, SOURCE EVIDENCE PENDING HUMAN REVIEW",
   "description": "Two open-weight models answer 12 NHS benchmark items under three evidence conditions. Evaluation rules and two independent judge models assess each model response.",
   "dataset": "data/pilot/nhs_pilot_items.jsonl",
@@ -64,7 +64,121 @@
         "factual_accuracy_mean": 2.5,
         "factual_accuracy_n_items": 10
       },
-      "judges": null
+      "judges": {
+        "per_judge": {
+          "ollama-mistral-nemo-12b": {
+            "valid_judge_results": {
+              "numerator": 11,
+              "denominator": 12,
+              "rate": 0.9167
+            },
+            "abstention": {
+              "numerator": 0,
+              "denominator": 66,
+              "rate": 0.0
+            },
+            "invalidated_dimensions": {
+              "numerator": 2,
+              "denominator": 66,
+              "rate": 0.0303
+            },
+            "claims_total": 25,
+            "unsupported_claims": {
+              "numerator": 12,
+              "denominator": 25,
+              "rate": 0.48
+            },
+            "contradicted_claims": {
+              "numerator": 0,
+              "denominator": 25,
+              "rate": 0.0
+            },
+            "claims_needing_review": {
+              "numerator": 15,
+              "denominator": 25,
+              "rate": 0.6
+            },
+            "potentially_dangerous_claims": 2,
+            "mean_latency_s": 36.22
+          },
+          "ollama-phi4-14b": {
+            "valid_judge_results": {
+              "numerator": 12,
+              "denominator": 12,
+              "rate": 1.0
+            },
+            "abstention": {
+              "numerator": 0,
+              "denominator": 72,
+              "rate": 0.0
+            },
+            "invalidated_dimensions": {
+              "numerator": 0,
+              "denominator": 72,
+              "rate": 0.0
+            },
+            "claims_total": 48,
+            "unsupported_claims": {
+              "numerator": 20,
+              "denominator": 48,
+              "rate": 0.4167
+            },
+            "contradicted_claims": {
+              "numerator": 2,
+              "denominator": 48,
+              "rate": 0.0417
+            },
+            "claims_needing_review": {
+              "numerator": 23,
+              "denominator": 48,
+              "rate": 0.4792
+            },
+            "potentially_dangerous_claims": 2,
+            "mean_latency_s": 61.926
+          }
+        },
+        "judge_disagreement": {
+          "numerator": 1,
+          "denominator": 64,
+          "rate": 0.0156
+        },
+        "rule_vs_judge_material_disagreement": {
+          "numerator": 2,
+          "denominator": 10,
+          "rate": 0.2
+        },
+        "combined_abstention_or_review": {
+          "numerator": 11,
+          "denominator": 72,
+          "rate": 0.1528
+        },
+        "combined_filled_by_judge_consensus": {
+          "numerator": 50,
+          "denominator": 72,
+          "rate": 0.6944
+        },
+        "prompt_sensitivity": {
+          "ollama-mistral-nemo-12b": {
+            "canonical_prompt_version": "v2",
+            "variants": {
+              "v2-alt": {
+                "n": 64,
+                "exact_agreement": 0.8906,
+                "within_one": 1.0,
+                "mean_abs_difference": 0.1094,
+                "abstention_flips": 1,
+                "n_compared": 66
+              }
+            },
+            "note": null
+          },
+          "ollama-phi4-14b": {
+            "canonical_prompt_version": "v2",
+            "variants": {},
+            "note": "no prompt variants run (use --prompt-variant)"
+          }
+        }
+      }
     },
     {
       "run": "ollama-llama3.1-8b__retrieved",
@@ -110,7 +224,112 @@
         "factual_accuracy_mean": 2.3333,
         "factual_accuracy_n_items": 12
       },
-      "judges": null
+      "judges": {
+        "per_judge": {
+          "ollama-mistral-nemo-12b": {
+            "valid_judge_results": {
+              "numerator": 9,
+              "denominator": 12,
+              "rate": 0.75
+            },
+            "abstention": {
+              "numerator": 0,
+              "denominator": 54,
+              "rate": 0.0
+            },
+            "invalidated_dimensions": {
+              "numerator": 0,
+              "denominator": 54,
+              "rate": 0.0
+            },
+            "claims_total": 9,
+            "unsupported_claims": {
+              "numerator": 0,
+              "denominator": 9,
+              "rate": 0.0
+            },
+            "contradicted_claims": {
+              "numerator": 0,
+              "denominator": 9,
+              "rate": 0.0
+            },
+            "claims_needing_review": {
+              "numerator": 2,
+              "denominator": 9,
+              "rate": 0.2222
+            },
+            "potentially_dangerous_claims": 0,
+            "mean_latency_s": 36.964
+          },
+          "ollama-phi4-14b": {
+            "valid_judge_results": {
+              "numerator": 12,
+              "denominator": 12,
+              "rate": 1.0
+            },
+            "abstention": {
+              "numerator": 1,
+              "denominator": 72,
+              "rate": 0.0139
+            },
+            "invalidated_dimensions": {
+              "numerator": 0,
+              "denominator": 72,
+              "rate": 0.0
+            },
+            "claims_total": 16,
+            "unsupported_claims": {
+              "numerator": 0,
+              "denominator": 16,
+              "rate": 0.0
+            },
+            "contradicted_claims": {
+              "numerator": 0,
+              "denominator": 16,
+              "rate": 0.0
+            },
+            "claims_needing_review": {
+              "numerator": 2,
+              "denominator": 16,
+              "rate": 0.125
+            },
+            "potentially_dangerous_claims": 0,
+            "mean_latency_s": 39.896
+          }
+        },
+        "judge_disagreement": {
+          "numerator": 0,
+          "denominator": 53,
+          "rate": 0.0
+        },
+        "rule_vs_judge_material_disagreement": {
+          "numerator": 3,
+          "denominator": 12,
+          "rate": 0.25
+        },
+        "combined_abstention_or_review": {
+          "numerator": 20,
+          "denominator": 72,
+          "rate": 0.2778
+        },
+        "combined_filled_by_judge_consensus": {
+          "numerator": 40,
+          "denominator": 72,
+          "rate": 0.5556
+        },
+        "prompt_sensitivity": {
+          "ollama-mistral-nemo-12b": {
+            "canonical_prompt_version": "v2",
+            "variants": {},
+            "note": "no prompt variants run (use --prompt-variant)"
+          },
+          "ollama-phi4-14b": {
+            "canonical_prompt_version": "v2",
+            "variants": {},
+            "note": "no prompt variants run (use --prompt-variant)"
+          }
+        }
+      }
     },
     {
       "run": "ollama-llama3.1-8b__oracle",
@@ -156,7 +375,112 @@
         "factual_accuracy_mean": 2.5833,
         "factual_accuracy_n_items": 12
       },
-      "judges": null
+      "judges": {
+        "per_judge": {
+          "ollama-mistral-nemo-12b": {
+            "valid_judge_results": {
+              "numerator": 12,
+              "denominator": 12,
+              "rate": 1.0
+            },
+            "abstention": {
+              "numerator": 0,
+              "denominator": 72,
+              "rate": 0.0
+            },
+            "invalidated_dimensions": {
+              "numerator": 0,
+              "denominator": 72,
+              "rate": 0.0
+            },
+            "claims_total": 16,
+            "unsupported_claims": {
+              "numerator": 1,
+              "denominator": 16,
+              "rate": 0.0625
+            },
+            "contradicted_claims": {
+              "numerator": 0,
+              "denominator": 16,
+              "rate": 0.0
+            },
+            "claims_needing_review": {
+              "numerator": 9,
+              "denominator": 16,
+              "rate": 0.5625
+            },
+            "potentially_dangerous_claims": 0,
+            "mean_latency_s": 27.212
+          },
+          "ollama-phi4-14b": {
+            "valid_judge_results": {
+              "numerator": 12,
+              "denominator": 12,
+              "rate": 1.0
+            },
+            "abstention": {
+              "numerator": 1,
+              "denominator": 72,
+              "rate": 0.0139
+            },
+            "invalidated_dimensions": {
+              "numerator": 0,
+              "denominator": 72,
+              "rate": 0.0
+            },
+            "claims_total": 17,
+            "unsupported_claims": {
+              "numerator": 0,
+              "denominator": 17,
+              "rate": 0.0
+            },
+            "contradicted_claims": {
+              "numerator": 0,
+              "denominator": 17,
+              "rate": 0.0
+            },
+            "claims_needing_review": {
+              "numerator": 4,
+              "denominator": 17,
+              "rate": 0.2353
+            },
+            "potentially_dangerous_claims": 0,
+            "mean_latency_s": 40.548
+          }
+        },
+        "judge_disagreement": {
+          "numerator": 2,
+          "denominator": 71,
+          "rate": 0.0282
+        },
+        "rule_vs_judge_material_disagreement": {
+          "numerator": 2,
+          "denominator": 15,
+          "rate": 0.1333
+        },
+        "combined_abstention_or_review": {
+          "numerator": 6,
+          "denominator": 72,
+          "rate": 0.0833
+        },
+        "combined_filled_by_judge_consensus": {
+          "numerator": 53,
+          "denominator": 72,
+          "rate": 0.7361
+        },
+        "prompt_sensitivity": {
+          "ollama-mistral-nemo-12b": {
+            "canonical_prompt_version": "v2",
+            "variants": {},
+            "note": "no prompt variants run (use --prompt-variant)"
+          },
+          "ollama-phi4-14b": {
+            "canonical_prompt_version": "v2",
+            "variants": {},
+            "note": "no prompt variants run (use --prompt-variant)"
+          }
+        }
+      }
     },
     {
       "run": "ollama-qwen2.5-7b__baseline",
