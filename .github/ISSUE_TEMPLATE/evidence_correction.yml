@@ -1,0 +1,47 @@
+name: Evidence correction
+description: Report an error in a source record, an extract or a citation in the evidence registry.
+labels: ["evidence"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Give the official source. Do not paste long copyrighted text. A short quotation and a link are sufficient.
+  - type: input
+    id: ids
+    attributes:
+      label: Source ID or passage ID
+      placeholder: "SRC-NHS-HEPC or PSG-NHS-HEPC-CURE"
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Type of problem
+      options:
+        - Extract does not match the official source
+        - Source has changed or is withdrawn
+        - Wrong URL, date or organisation
+        - Licence or attribution is wrong
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+      description: State what is wrong and what the official source says.
+    validations:
+      required: true
+  - type: input
+    id: official-url
+    attributes:
+      label: Official source URL
+    validations:
+      required: true
+  - type: input
+    id: checked-on
+    attributes:
+      label: Date you checked the source
+      placeholder: "YYYY-MM-DD"
+    validations:
+      required: true

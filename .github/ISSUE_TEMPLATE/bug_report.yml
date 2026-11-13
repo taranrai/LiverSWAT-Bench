@@ -1,0 +1,44 @@
+name: Bug report
+description: Report a software problem in the liverswat package or command-line interface.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form for software problems only. For errors in source evidence, use "Evidence correction".
+        Do not include credentials, tokens or personal health information.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: Describe the problem. Include the exact error message.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Give the exact commands. Use mock models if possible.
+      placeholder: |
+        1. liverswat validate
+        2. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected outcome
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Output of `pip show liverswat-bench` (Version line) or the Git commit.
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Operating system, Python version, model backend.
